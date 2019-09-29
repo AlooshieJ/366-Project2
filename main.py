@@ -45,29 +45,44 @@ class Instruction():
 
 
 # functions( instruc) these should do the actual instructions
-# currently just outputting to check if they work. 
+# currently just outputting to check if they work.
+# r- types
 def add(instr):
     #instr.printBinary()
     print(instr.binary_S + '\n' )
     print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt)  + '\n')
+
+def OR(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt) + '\n')
+
+# i - types
 def addi (instr):
     print( instr.binary_S + '\n')
     print( instr.name + " $" + str(instr.rt) +", $" + str(instr.rs) + ", " + str(instr.imm)  + '\n')
+
+def ori(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
 
 
 
 #python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
 #               key,    [0],  [1]
-func_dict = {'100000' : (add,'add'),
-            '001000' : (addi, 'addi') }
+func_dict = {
+            # r - types:
+             '100000' : (add,'add'),
+             '100101' : (OR,'or'),
+             #i-types:
+             '001000' : (addi, 'addi'),
+             '001101': (ori,'ori')}
 
 
 #first things first is read an asm file, decifer its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
 
 # other thoughts:
-#
 #
 
 def main():
