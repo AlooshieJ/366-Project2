@@ -73,10 +73,12 @@ def addi(instr):
 def ori(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
+   # return instr.rt  or str.rs
 
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
+# funciton table in a way..
 #               key,    [0],  [1]
 func_dict = {
     # r - types:
@@ -93,46 +95,57 @@ regs = { 0: 0,
 
 }
 
+
 # first things first is read an asm file, decifer its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
 def saveJumpLabel(asmMC,labelIndex,labelName):
     lineCounter = 0
     for line in asmMC:
         line = line.replace(" ", "")
-        if ( line.count(":") ):
+        if ( line.find(":") != -1 ):
             labelName.append(line[0:line.index(':')])  # save label name from each read line into array
             labelIndex.append(lineCounter)  # save label's index
-            asmMC[lineCounter] = line[line.index(":") + 1:]
+           # asmMC[lineCounter] = line[line.index(":") + 1:]
             lineCounter += 1
 
     for item in range (asmMC.count('\n')):
         asmMC.remove('\n')
 
 # other thoughts:
-#
+
+
+def get_lables(linenum, asm,  labelTable):
+        for line in asm:
+            if(line.find(':') != -1):
+                labelTable.append([line.replace(':',''), linenum])
+                linenum += 1
+
 
 def main():
     # input asm file
-    f = open("test.txt","w+")
+    f = open("test.txt","w+") # dont need to write i think yet....
     h = open("mips.asm",'r')
     asm = h.readlines()
-    labelIndex = []
+    instr_list = [] # what we read from file
     labelName = []
-    c = 1
+    labelIndex = []
+    lineCount = 0
 
-    for item in range(asm.count('\n')): # removes empty lines
-        asm.remove('\n')
+   # for line in range(asm.count("\n")):
+    #    asm.remove('\n')
 
-    saveJumpLabel(asm, labelIndex, labelName)
+    saveJumpLabel(asm,labelIndex,labelName)
 
-    print(str(labelIndex) )
     print(labelName)
-    print("file:")
-
+    print(labelIndex)
     for line in asm:
-        print( str(c) +line)
-        # f.write( line )
-        c+=1
+        curInstr = line.replace('$',"")
+        print(curInstr)
+        f.write(curInstr)
+        lineCount += 1
+
+
+
 
 """
     # loop to test if instruction class working properly.
@@ -151,9 +164,10 @@ def main():
             except:  # if can not, then print supported
                 print('not supported')
 
-"""
+
     # loop to test how memory output would look
 
+"""
 
 
 if __name__ == "__main__":
