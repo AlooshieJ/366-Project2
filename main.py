@@ -98,9 +98,10 @@ regs = { 0: 0,
 
 # first things first is read an asm file, decifer its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
-def saveJumpLabel(asmMC,labelIndex,labelName):
+# asm = machine code
+def saveJumpLabel(asm,labelIndex,labelName):
     lineCounter = 0
-    for line in asmMC:
+    for line in asm:
         line = line.replace(" ", "")
         if ( line.find(":") != -1 ):
             labelName.append(line[0:line.index(':')])  # save label name from each read line into array
@@ -108,8 +109,8 @@ def saveJumpLabel(asmMC,labelIndex,labelName):
            # asmMC[lineCounter] = line[line.index(":") + 1:]
             lineCounter += 1
 
-    for item in range (asmMC.count('\n')):
-        asmMC.remove('\n')
+    for item in range (asm.count('\n')):
+        asm.remove('\n')
 
 # other thoughts:
 
@@ -131,18 +132,25 @@ def main():
     labelIndex = []
     lineCount = 0
 
-   # for line in range(asm.count("\n")):
-    #    asm.remove('\n')
-
+    print(asm)
     saveJumpLabel(asm,labelIndex,labelName)
 
     print(labelName)
     print(labelIndex)
+    print (asm)
+
+    for i in range (asm.count('\n')):
+        asm.remove('\n')
+
+
     for line in asm:
-        curInstr = line.replace('$',"")
-        print(curInstr)
-        f.write(curInstr)
-        lineCount += 1
+        line = line.replace('$', "")
+        line = line.replace('\n','')
+        # print(curInstr)
+        # f.write(curInstr)
+
+    print(asm)
+
 
 
 
