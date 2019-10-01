@@ -1,5 +1,4 @@
 
-
 # think about register class.... that would
 
 
@@ -10,7 +9,7 @@ class Instruction():
     def __init__(self, hex_num): # everything in here is an instance variable, we are gonna read different lines of code
         # so every line should be interpreted on its own.
 
-        hex_to_int = int(hex_num,16) # convert string to int
+        hex_to_int = int(hex_num ,16) # convert string to int
         self.hexCode= hex(hex_to_int)
 
         # create a binary string
@@ -47,64 +46,120 @@ class Instruction():
 # functions( instruc) these should do the actual instructions
 # currently just outputting to check if they work.
 # r- types
-def add(instr):
-    #instr.printBinary()
+def add (instr):
+    # addi rd,rs,rt
     print(instr.binary_S + '\n' )
-    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt)  + '\n')
+    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt) + '\n')
+
 
 def OR(instr):
+    # or rd, rs, rt
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt) + '\n')
 
+
+def mult(instr):
+    # mult rs, rt
+    print(instr.binary_S + '\n')
+    print('mult not done')
+
+
 # i - types
-def addi (instr):
-    print( instr.binary_S + '\n')
-    print( instr.name + " $" + str(instr.rt) +", $" + str(instr.rs) + ", " + str(instr.imm)  + '\n')
+def addi(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
+
 
 def ori(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
 
 
-
-#python directory, like array, but uses "key" to instead of indices.
+# python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
 #               key,    [0],  [1]
 func_dict = {
-            # r - types:
-             '100000' : (add,'add'),
-             '100101' : (OR,'or'),
-             #i-types:
-             '001000' : (addi, 'addi'),
-             '001101': (ori,'ori')}
+    # r - types:
+    '100000': (add, 'add'),
+    '100101': (OR, 'or'),
+    '011000': (mult, 'mult'),
+    # i-types:
+    '001000': (addi, 'addi'),
+    '001101': (ori, 'ori')}
 
+# define registers as dictionary
+regs = { 0: 0,
+         'PC': 0
 
-#first things first is read an asm file, decifer its contents to binary (homework 4),
+}
+
+# first things first is read an asm file, decifer its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
+def saveJumpLabel(asmMC,labelIndex,labelName):
+    lineCounter = 0
+    for line in asmMC:
+        line = line.replace(" ", "")
+        if ( line.count(":") ):
+            labelName.append(line[0:line.index(':')])  # save label name from each read line into array
+            labelIndex.append(lineCounter)  # save label's index
+            asmMC[lineCounter] = line[line.index(":") + 1:]
+            lineCounter += 1
+
+    for item in range (asmMC.count('\n')):
+        asmMC.remove('\n')
 
 # other thoughts:
 #
 
 def main():
+    # input asm file
+    f = open("test.txt","w+")
+    h = open("mips.asm",'r')
+    asm = h.readlines()
+    labelIndex = []
+    labelName = []
+    c = 1
 
- while(True):
-     x = input("input: ( 'q' to exit)>")
+    for item in range(asm.count('\n')): # removes empty lines
+        asm.remove('\n')
 
-     if (x == 'q'):
-         print("exiting")
-         break
-     else:
+    saveJumpLabel(asm, labelIndex, labelName)
 
-         try: # try to create the instruction
-            tmp = Instruction( x )
-            function = func_dict[tmp.func][0]
-            function(tmp)
-         except: # if cannnot, then print supported
-            print('not supported')
+    print(str(labelIndex) )
+    print(labelName)
+    print("file:")
+
+    for line in asm:
+        print( str(c) +line)
+        # f.write( line )
+        c+=1
+
+"""
+    # loop to test if instruction class working properly.
+    while True:
+        x = input("input: ( 'q' to exit)>")
+
+        if x == 'q':
+            print("exiting")
+            break
+        else:
+
+            try:  # try to create the instruction
+                tmp = Instruction(x)
+                function = func_dict[tmp.func][0]
+                function(tmp)
+            except:  # if can not, then print supported
+                print('not supported')
+
+"""
+    # loop to test how memory output would look
 
 
 
 if __name__ == "__main__":
     main()
+
+
     
 #class register():
+# >>>>>>> master
