@@ -167,7 +167,7 @@ class registerfile():
         for i in range(34):
             self.data.append(0x00000000)
     def read(self, readindex): 
-        if(readindex == 0) 
+        if(readindex == 0): 
             return 0
         return self.data[readindex]
     def write(self, writeindex, writeback_value):
