@@ -161,5 +161,23 @@ if __name__ == "__main__":
 
 
     
-#class register():
+class registerfile():
+    def init(self):
+        self.data = []
+        for i in range(34):
+            self.data.append(0x00000000)
+    def itype_read(self, readindex): #rtype read will also be used beq, bne and for store instructions 
+        return self.data[readindex]
+    def write(self, writeindex, writeback_value):
+        if(writeindex != 0):
+            self.data[writeindex] = writeback_value
+    def writeHi(self, writeback_value):
+        self.data[33] = writeback_value
+    def writeLo(self, writebackvalue):
+        self.data[32] = writeback_value
+    def movefromHi(self, dest_index):
+        self.data[dest_index] = self.data[33]
+        
+        
+        
 # >>>>>>> master
