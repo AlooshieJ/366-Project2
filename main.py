@@ -177,9 +177,9 @@ class registerfile():
         self.data[33] = writeback_value
     def writeLo(self, writebackvalue):
         self.data[32] = writeback_value
-    def movefromHi(self, dest_index):
+    def movefromHi(self, destindex):
         self.data[destindex] = self.data[33]
-    def movefromLo(self, dest_index):
+    def movefromLo(self, destindex):
         self.data[destindex] = self.data[32]
     def readpc(self):
         return self.data[0]
