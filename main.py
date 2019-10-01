@@ -166,7 +166,9 @@ class registerfile():
         self.data = []
         for i in range(34):
             self.data.append(0x00000000)
-    def itype_read(self, readindex): #rtype read will also be used beq, bne and for store instructions 
+    def read(self, readindex): 
+        if(readindex == 0) 
+            return 0
         return self.data[readindex]
     def write(self, writeindex, writeback_value):
         if(writeindex != 0):
@@ -176,8 +178,14 @@ class registerfile():
     def writeLo(self, writebackvalue):
         self.data[32] = writeback_value
     def movefromHi(self, dest_index):
-        self.data[dest_index] = self.data[33]
-        
-        
-        
+        self.data[destindex] = self.data[33]
+    def movefromLo(self, dest_index):
+        self.data[destindex] = self.data[32]
+    def readpc(self):
+        return self.data[0]
+    def read_and_updatepc(self):
+        temp = self.data[0]
+        self.data[0] += 4
+        return temp
+ 
 # >>>>>>> master
