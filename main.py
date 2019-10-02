@@ -3,6 +3,14 @@
 from ASMtoBIN import *
 
 
+class mem():
+    def __init__(self, address, b0, b1, b2, b3):
+        self.addr= address
+        self.b0 = hex(b0) #ff
+        self.b1 = hex(b1) #ff
+        self.b2 = hex(b2) #ff
+        self.b3 = hex(b3) #ff
+
 # Lets use a class to define what an instruction is
 # its an opcode , it has an rs, rd ,rt, imm
 class Instruction():
@@ -40,6 +48,8 @@ class Instruction():
 
     def printBinary(self):
         print(self.binary_S)
+
+
 
 
 
@@ -90,7 +100,24 @@ func_dict = {
     '001101': (ori, 'ori')}
 
 # define registers as dictionary
-regs = { 0: 0,
+hex_nums = { '0x0': 0,
+             '0x1': 1,
+             '0x2': 2,
+             '0x3': 3,
+             '0x4': 4,
+             '0x5': 5,
+             '0x6': 6,
+             '0x7': 7,
+             '0x8': 8,
+             '0x9': 9,
+             '0xa': 10,
+             '0xb': 11,
+             '0xc': 12,
+             '0xd': 13,
+             '0xe': 14,
+             '0xf': 15,
+
+
          'PC': 0
 
 }
@@ -110,6 +137,7 @@ def saveJumpLabel(asm,labelIndex,labelName):
             lineCounter += 1
 
     for item in range (asm.count('\n')):
+        
         asm.remove('\n')
 
 # other thoughts:
@@ -126,6 +154,7 @@ def main():
     lineCount = 0
 
     saveJumpLabel(asm,labelIndex,labelName)
+
 
    # print(labelName)
    # print(labelIndex)
@@ -145,7 +174,7 @@ def main():
             # asd
         else:
             instr_list.append(line) # creates an array of every instruciton in the file
-    print(instr_list)
+    #print(instr_list)
     # iterate through the array of instructions....
 
     """"
@@ -153,9 +182,60 @@ def main():
     
     
     
-    """
     for i in instr_list:
         print(i)
+    """
+    # mem = [[0x2000,0],[0x2001,0],[0x2002,0]]
+    #^^idea 1 ^^
+    # VV  idea 2 VV
+    #mem = [ of addr ]
+    # use class to send that index of addr and set information
+
+    MemStart = 8192 #'0x2000'
+    #memaddr = [] # array of address,
+    mem_Value = [] #mem(MemStart,0,0,0,0)
+
+    # loop through the created instructions array.
+    for i in range( 100): #this could work for each instruction instr_list:
+        addr = str(hex(MemStart))
+        #memaddr.append(addr)
+        mem_Value.append(mem(addr,0,0,0,0))
+
+        MemStart  += 4   # increment addr by 4, each will have access to every bit.
+
+    c1= 0
+    for row in mem_Value:
+        if c1 % 8 == 0 :
+            print('\n', end = '')
+
+        #print(mem_Value[c1].addr ,mem_Value[c1].b0,mem_Value[c1].b1,mem_Value[c1].b2, mem_Value[c1].b3 ,end = " ")
+        #print(mem_Value[c1].addr, end = " ")
+        c1+=1
+
+
+    mem_Value[1].addr = '000'
+    mem_Value[1].b0 = 10
+    mem_Value[1].b1 = 20
+    print(mem_Value[1].addr ,mem_Value[1].b0,mem_Value[1].b1,mem_Value[1].b2, mem_Value[1].b3 ,end = " ")
+
+    tmp1 = 'a'
+    while tmp1 != 'q':
+        tmp1 = input("type someting") # hex number
+
+        try:
+            x = Instruction(tmp1) # instance of the class with hex number
+            instructionFunc = func_dict[x.opcode][0]
+            instructionFunc(x)
+        except:
+            print("not supported")
+
+
+   # print(memaddr)
+
+    #temp = mem(memIndex, )
+
+
+    #print (temp)
 
 
 
@@ -163,6 +243,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
     
@@ -193,4 +274,3 @@ class registerfile():
         self.data[0] += 4
         return temp
  
-# >>>>>>> master
