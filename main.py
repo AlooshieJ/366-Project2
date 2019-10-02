@@ -1,5 +1,7 @@
 
 # think about register class.... that would
+from ASMtoBIN import *
+
 
 class mem():
     def __init__(self, address, b0, b1, b2, b3):
