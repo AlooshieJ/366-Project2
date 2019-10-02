@@ -2,6 +2,12 @@
 # think about register class.... that would
 
 
+class mem():
+    def __init__(self, address, b0, b1, b2, b3):
+        self.b0 = b0
+        self.b1 = b1
+        self.b2 = b2
+        self.b3 = b3
 
 # Lets use a class to define what an instruction is
 # its an opcode , it has an rs, rd ,rt, imm
@@ -115,14 +121,6 @@ def saveJumpLabel(asm,labelIndex,labelName):
 
 # other thoughts:
 
-
-def get_lables(linenum, asm,  labelTable):
-        for line in asm:
-            if(line.find(':') != -1):
-                labelTable.append([line.replace(':',''), linenum])
-                linenum += 1
-
-
 def main():
     # input asm file
     f = open("test.txt","w+") # dont need to write i think yet....
@@ -131,14 +129,15 @@ def main():
     instr_list = [] # what we read from file
     labelName = []
     labelIndex = []
+    junk = [] # these are the labels with :
     lineCount = 0
 
-    print(asm)
     saveJumpLabel(asm,labelIndex,labelName)
 
-    #print(labelName)
-    #print(labelIndex)
-    print (asm)
+
+   # print(labelName)
+   # print(labelIndex)
+    #print (asm)
 
     for i in range (asm.count('\n')):
         asm.remove('\n')
@@ -147,42 +146,31 @@ def main():
     for line in asm:
         line = line.replace('$', "")
         line = line.replace('\n','')
-        # print(curInstr)
-        # f.write(curInstr)
+        line = line.replace('#','')
 
-    print(asm)
-
-
-
-
-
-"""
-    # loop to test if instruction class working properly.
-    while True:
-        x = input("input: ( 'q' to exit)>")
-
-        if x == 'q':
-            print("exiting")
-            break
+        if line.find(':') != -1 :
+            junk.append(line)
+            # asd
         else:
+            instr_list.append(line) # creates an array of every instruciton in the file
+    print(instr_list)
+    # iterate through the array of instructions....
 
-            try:  # try to create the instruction
-                tmp = Instruction(x)
-                function = func_dict[tmp.func][0]
-                function(tmp)
-            except:  # if can not, then print supported
-                print('not supported')
+    """"
+    Now we have each instruction at an index, need to convert it to binary...
+    
+    
+    
+    """
+    for i in instr_list:
+        print(i)
 
 
-    # loop to test how memory output would look
 
-"""
 
 
 if __name__ == "__main__":
     main()
 
 
-    
-#class register():
-# >>>>>>> master
+
