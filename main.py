@@ -4,10 +4,10 @@
 class mem():
     def __init__(self, address, b0, b1, b2, b3):
         self.addr= address
-        self.b0 = hex(b0) #ff
-        self.b1 = hex(b1) #ff
-        self.b2 = hex(b2) #ff
-        self.b3 = hex(b3) #ff
+        self.b0 = hex(b0) # addr + 1
+        self.b1 = hex(b1) #addr + 2
+        self.b2 = hex(b2) #addr + 3
+        self.b3 = hex(b3) #addr + 4
 
 # Lets use a class to define what an instruction is
 # its an opcode , it has an rs, rd ,rt, imm
@@ -194,7 +194,7 @@ def main():
     mem_Value = [] #mem(MemStart,0,0,0,0)
 
     # loop through the created instructions array.
-    for i in range( 100): #this could work for each instruction instr_list:
+    for i in range( 100000): #this could work for each instruction instr_list:
         addr = str(hex(MemStart))
         #memaddr.append(addr)
         mem_Value.append(mem(addr,0,0,0,0))
@@ -207,7 +207,7 @@ def main():
             print('\n', end = '')
 
         #print(mem_Value[c1].addr ,mem_Value[c1].b0,mem_Value[c1].b1,mem_Value[c1].b2, mem_Value[c1].b3 ,end = " ")
-        #print(mem_Value[c1].addr, end = " ")
+        print(mem_Value[c1].addr, end = " ")
         c1+=1
 
 
@@ -271,4 +271,3 @@ class registerfile():
         temp = self.data[0]
         self.data[0] += 4
         return temp
- 
