@@ -21,7 +21,7 @@ def bindigits(n, bits):
 def main():
     labelIndex = []
     labelName = []
-    f = open("mc.txt", "w+")
+    f = open("convertedToBinary.txt", "w+")
     h = open("mips.asm", "r")
     asm = h.readlines()
     linePos = 0
