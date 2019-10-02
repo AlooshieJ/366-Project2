@@ -1,6 +1,6 @@
 
 # think about register class.... that would
-
+from ASMtoBIN import *
 
 
 # Lets use a class to define what an instruction is
