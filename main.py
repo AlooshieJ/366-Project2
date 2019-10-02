@@ -2,6 +2,12 @@
 # think about register class.... that would
 
 
+class mem():
+    def __init__(self, address, b0, b1, b2, b3):
+        self.b0 = b0
+        self.b1 = b1
+        self.b2 = b2
+        self.b3 = b3
 
 # Lets use a class to define what an instruction is
 # its an opcode , it has an rs, rd ,rt, imm
