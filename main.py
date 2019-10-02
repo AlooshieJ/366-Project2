@@ -110,6 +110,7 @@ def saveJumpLabel(asm,labelIndex,labelName):
             lineCounter += 1
 
     for item in range (asm.count('\n')):
+        
         asm.remove('\n')
 
 # other thoughts:
@@ -135,8 +136,8 @@ def main():
     print(asm)
     saveJumpLabel(asm,labelIndex,labelName)
 
-    print(labelName)
-    print(labelIndex)
+    #print(labelName)
+    #print(labelIndex)
     print (asm)
 
     for i in range (asm.count('\n')):
