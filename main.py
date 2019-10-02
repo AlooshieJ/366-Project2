@@ -1,7 +1,6 @@
 
 # think about register class.... that would
 
-
 class mem():
     def __init__(self, address, b0, b1, b2, b3):
         self.addr= address
@@ -47,6 +46,8 @@ class Instruction():
 
     def printBinary(self):
         print(self.binary_S)
+
+
 
 
 
@@ -205,7 +206,8 @@ def main():
         if c1 % 8 == 0 :
             print('\n', end = '')
 
-        print(mem_Value[c1].addr ,mem_Value[c1].b0,mem_Value[c1].b1,mem_Value[c1].b2, mem_Value[c1].b3 ,end = " ")
+        #print(mem_Value[c1].addr ,mem_Value[c1].b0,mem_Value[c1].b1,mem_Value[c1].b2, mem_Value[c1].b3 ,end = " ")
+        #print(mem_Value[c1].addr, end = " ")
         c1+=1
 
 
@@ -214,8 +216,16 @@ def main():
     mem_Value[1].b1 = 20
     print(mem_Value[1].addr ,mem_Value[1].b0,mem_Value[1].b1,mem_Value[1].b2, mem_Value[1].b3 ,end = " ")
 
+    tmp1 = 'a'
+    while tmp1 != 'q':
+        tmp1 = input("type someting") # hex number
 
-
+        try:
+            x = Instruction(tmp1) # instance of the class with hex number
+            instructionFunc = func_dict[x.opcode][0]
+            instructionFunc(x)
+        except:
+            print("not supported")
 
 
    # print(memaddr)
