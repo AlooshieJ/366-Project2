@@ -244,3 +244,31 @@ if __name__ == "__main__":
 
 
 
+    
+class registerfile():
+    def init(self):
+        self.data = []
+        for i in range(34):
+            self.data.append(0x00000000)
+    def read(self, readindex): 
+        if(readindex == 0): 
+            return 0
+        return self.data[readindex]
+    def write(self, writeindex, writeback_value):
+        if(writeindex != 0):
+            self.data[writeindex] = writeback_value
+    def writeHi(self, writeback_value):
+        self.data[33] = writeback_value
+    def writeLo(self, writebackvalue):
+        self.data[32] = writeback_value
+    def movefromHi(self, destindex):
+        self.data[destindex] = self.data[33]
+    def movefromLo(self, destindex):
+        self.data[destindex] = self.data[32]
+    def readpc(self):
+        return self.data[0]
+    def read_and_updatepc(self):
+        temp = self.data[0]
+        self.data[0] += 4
+        return temp
+ 
