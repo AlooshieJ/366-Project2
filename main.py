@@ -31,10 +31,10 @@ class registerfile():
 class mem():
     def __init__(self, address, b0, b1, b2, b3):
         self.addr= address
-        self.b0 = hex(b0) #ff
-        self.b1 = hex(b1) #ff
-        self.b2 = hex(b2) #ff
-        self.b3 = hex(b3) #ff
+        self.b0 = hex(b0) # addr + 1
+        self.b1 = hex(b1) #addr + 2
+        self.b2 = hex(b2) #addr + 3
+        self.b3 = hex(b3) #addr + 4
 
     def printMem(self):
         print(self.addr,self.b0,self.b1,self.b2,self.b3)
@@ -230,7 +230,10 @@ def main():
     mem_Value = [] #mem(MemStart,0,0,0,0)
 
     # loop through the created instructions array.
+
+ 
     for i in range( 50): #this could work for each instruction instr_list:
+
         addr = str(hex(MemStart))
         #memaddr.append(addr)
         mem_Value.append(mem(addr,0,0,0,0))
@@ -244,7 +247,7 @@ def main():
 
         mem_Value[c1].printMem()
         #print(mem_Value[c1].addr ,mem_Value[c1].b0,mem_Value[c1].b1,mem_Value[c1].b2, mem_Value[c1].b3 ,end = " ")
-        #print(mem_Value[c1].addr, end = " ")
+        print(mem_Value[c1].addr, end = " ")
         c1+=1
 
 
@@ -278,5 +281,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
