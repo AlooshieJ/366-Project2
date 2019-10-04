@@ -1,34 +1,17 @@
 #Based off of Trung Le's code
 #Finished code by: Trent Mathews
 
-# Remember where each of the jump label is, and the target location
-def saveJumpLabel(asm, labelIndex, labelName):
-    lineCount = 0
-    for line in asm:
-        line = line.replace(" ", "")
-        if (line.count(":")):
-            labelName.append(line[0:line.index(":")])  # append the label name
-            labelIndex.append(lineCount)  # append the label's index
-            asm[lineCount] = line[line.index(":") + 1:]
-        lineCount += 1
-    for item in range(asm.count('\n')):  # Remove all empty lines '\n'
-        asm.remove('\n')
 
 def bindigits(n, bits):
     s = bin(n & int("1"*bits, 2))[2:]
     return ("{0:0>%s}" % (bits)).format(s)
 
-def main():
-    labelIndex = []
-    labelName = []
-    f = open("convertedToBinary.txt", "w+")
-    h = open("mips.asm", "r")
-    asm = h.readlines()
-    linePos = 0
-    for item in range(asm.count('\n')):  # Remove all empty lines '\n'
-        asm.remove('\n')
 
-    saveJumpLabel(asm, labelIndex, labelName)  # Save all jump's destinations
+def asm_to_bin(asm, labelName, labelIndex):
+    linePos = 0
+    f = open("toBin.txt", "w+")
+
+
 
     for line in asm:
         line = line.replace("\n", "")  # Removes extra chars
@@ -207,8 +190,4 @@ def main():
                         f.write(str('000010') + str(format(int(labelIndex[i]), '026b')) + '\n')
                         linePos += 1
 
-    f.close()
 
-
-if __name__ == "__main__":
-    main()

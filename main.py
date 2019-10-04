@@ -11,6 +11,8 @@ class mem():
         self.b2 = hex(b2) #ff
         self.b3 = hex(b3) #ff
 
+    def printMem(self):
+        print(self.addr,self.b0,self.b1,self.b2,self.b3)
 # Lets use a class to define what an instruction is
 # its an opcode , it has an rs, rd ,rt, imm
 class Instruction():
@@ -174,7 +176,10 @@ def main():
             # asd
         else:
             instr_list.append(line) # creates an array of every instruciton in the file
-    #print(instr_list)
+
+
+    asm_to_bin(instr_list,labelName, labelIndex)
+    print(instr_list)
     # iterate through the array of instructions....
 
     """"
@@ -196,7 +201,7 @@ def main():
     mem_Value = [] #mem(MemStart,0,0,0,0)
 
     # loop through the created instructions array.
-    for i in range( 100): #this could work for each instruction instr_list:
+    for i in range( 50): #this could work for each instruction instr_list:
         addr = str(hex(MemStart))
         #memaddr.append(addr)
         mem_Value.append(mem(addr,0,0,0,0))
@@ -208,6 +213,7 @@ def main():
         if c1 % 8 == 0 :
             print('\n', end = '')
 
+        mem_Value[c1].printMem()
         #print(mem_Value[c1].addr ,mem_Value[c1].b0,mem_Value[c1].b1,mem_Value[c1].b2, mem_Value[c1].b3 ,end = " ")
         #print(mem_Value[c1].addr, end = " ")
         c1+=1
@@ -273,4 +279,3 @@ class registerfile():
         temp = self.data[0]
         self.data[0] += 4
         return temp
- 
