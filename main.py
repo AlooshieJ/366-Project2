@@ -1,8 +1,33 @@
 
 # think about register class.... that would
 from ASMtoBIN import *
-
-
+class registerfile():
+    def __init__(self):
+        self.data = []
+        for i in range(34):
+            self.data.append(0x00000000)
+    def read(self, readindex): 
+        if(readindex == 0): 
+            return 0
+        return self.data[readindex]
+    def write(self, writeindex, writeback_value):
+        if(writeindex != 0):
+            self.data[writeindex] = writeback_value
+    def writeHi(self, writeback_value):
+        self.data[33] = writeback_value
+    def writeLo(self, writebackvalue):
+        self.data[32] = writeback_value
+    def movefromHi(self, destindex):
+        self.data[destindex] = self.data[33]
+    def movefromLo(self, destindex):
+        self.data[destindex] = self.data[32]
+    def readpc(self):
+        return self.data[0]
+    def read_and_updatepc(self):
+        temp = self.data[0]
+        self.data[0] += 4
+        return temp
+#regfile = registerfile()
 class mem():
     def __init__(self, address, b0, b1, b2, b3):
         self.addr= address
@@ -62,7 +87,9 @@ def add (instr):
     # addi rd,rs,rt
     print(instr.binary_S + '\n' )
     print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt) + '\n')
-
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #regfile.write(instr.rd, a + b)
 
 def OR(instr):
     # or rd, rs, rt
@@ -74,19 +101,21 @@ def mult(instr):
     # mult rs, rt
     print(instr.binary_S + '\n')
     print('mult not done')
-
+    
 
 # i - types
 def addi(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
-
+     #a = regfile.read(instr.rs) 
+     #regfile.write(instr.rt, a + imm)
 
 def ori(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
-   # return instr.rt  or str.rs
-
+    # return instr.rt  or str.rs
+    #a = regfile.read(instr.rs) 
+    #regfile.write(instr.rt, a | imm)
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
@@ -251,31 +280,3 @@ if __name__ == "__main__":
     main()
 
 
-
-    
-class registerfile():
-    def init(self):
-        self.data = []
-        for i in range(34):
-            self.data.append(0x00000000)
-    def read(self, readindex): 
-        if(readindex == 0): 
-            return 0
-        return self.data[readindex]
-    def write(self, writeindex, writeback_value):
-        if(writeindex != 0):
-            self.data[writeindex] = writeback_value
-    def writeHi(self, writeback_value):
-        self.data[33] = writeback_value
-    def writeLo(self, writebackvalue):
-        self.data[32] = writeback_value
-    def movefromHi(self, destindex):
-        self.data[destindex] = self.data[33]
-    def movefromLo(self, destindex):
-        self.data[destindex] = self.data[32]
-    def readpc(self):
-        return self.data[0]
-    def read_and_updatepc(self):
-        temp = self.data[0]
-        self.data[0] += 4
-        return temp
