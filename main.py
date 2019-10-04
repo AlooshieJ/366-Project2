@@ -106,6 +106,7 @@ def mult(instr):
     print('mult not done')
     
 #def slt(instr):
+    #print("{0} ${1}, ${2}, ${3}\n".format(instr.name, instr.rd, instr.rs, instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #if(a < b):
@@ -114,6 +115,7 @@ def mult(instr):
     #   regfile.write(instr.rd, 0)
     
 #def xor(instr):
+    #print("{0} ${1}, ${2}, ${3}\n".format(instr.name, instr.rd, instr.rs, instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a ^ b)
@@ -133,6 +135,7 @@ def ori(instr):
     #regfile.write(instr.rt, a | instr.imm)
     
 #def xori(instr):
+    #print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr,imm))
     #a = regfile.read(instr.rs)
     #regfile.write(instr.rt, a ^ instr.imm)
 
