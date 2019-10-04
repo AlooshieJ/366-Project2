@@ -1,6 +1,7 @@
 
 # think about register class.... that would
 from ASMtoBIN import *
+
 class registerfile():
     def __init__(self):
         self.data = []
@@ -40,6 +41,7 @@ class mem():
         print(self.addr,self.b0,self.b1,self.b2,self.b3)
 # Lets use a class to define what an instruction is
 # its an opcode , it has an rs, rd ,rt, imm
+# note: add instruction type detection, so we can split up the dictionary...
 class Instruction():
     def __init__(self, hex_num): # everything in here is an instance variable, we are gonna read different lines of code
         # so every line should be interpreted on its own.
@@ -157,67 +159,68 @@ hex_nums = { '0x0': 0,
 # first things first is read an asm file, decifer its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
 # asm = machine code
-def saveJumpLabel(asm,labelIndex,labelName):
-    lineCounter = 0
+def saveJumpLabel(asm,labelIndex,labelName,lineCount):
+
     for line in asm:
         line = line.replace(" ", "")
         if ( line.find(":") != -1 ):
             labelName.append(line[0:line.index(':')])  # save label name from each read line into array
-            labelIndex.append(lineCounter)  # save label's index
-           # asmMC[lineCounter] = line[line.index(":") + 1:]
-            lineCounter += 1
+            labelIndex.append(lineCount)  # save label's index
+            #asm[lineCounter] = line[line.index(':') +1 :]
+        lineCount += 1
 
     for item in range (asm.count('\n')):
-        
+
         asm.remove('\n')
 
 # other thoughts:
 
 def main():
     # input asm file
-    f = open("test.txt","w+") # dont need to write i think yet....
     h = open("mips.asm",'r')
+    binF = open("toBin.txt",'r') # binary file
     asm = h.readlines()
     instr_list = [] # what we read from file
     labelName = []
     labelIndex = []
-    junk = [] # these are the labels with :
+
     lineCount = 0
 
-    saveJumpLabel(asm,labelIndex,labelName)
+#   saving label and their index.
+    saveJumpLabel(asm,labelIndex,labelName,lineCount)
 
-
-   # print(labelName)
-   # print(labelIndex)
-    #print (asm)
 
     for i in range (asm.count('\n')):
         asm.remove('\n')
 
-
+    print(labelName, labelIndex)
     for line in asm:
         line = line.replace('$', "")
         line = line.replace('\n','')
         line = line.replace('#','')
+        line = line.replace('zero','0')
 
-        if line.find(':') != -1 :
-            junk.append(line)
-            # asd
-        else:
-            instr_list.append(line) # creates an array of every instruciton in the file
+        # if line.find(':') != -1 :
+        #     continue
+        #     # asd
+        # else:
+        instr_list.append(line) # creates an array of every instruciton in the file
+
+
+    # writes binary of asembly code to file
 
 
     asm_to_bin(instr_list,labelName, labelIndex)
-    print(instr_list)
-    # iterate through the array of instructions....
-
     """"
     Now we have each instruction at an index, need to convert it to binary...
+    read from the new file created, create an instance of the class with every line.
     
-    
-    
-    for i in instr_list:
-        print(i)
+    """
+    for binary in binF.readlines():
+        binary = binary.replace('\n','')
+        to_hex = hex(int(binary,2))
+        print(to_hex)
+
     """
     # mem = [[0x2000,0],[0x2001,0],[0x2002,0]]
     #^^idea 1 ^^
@@ -226,19 +229,14 @@ def main():
     # use class to send that index of addr and set information
 
     MemStart = 8192 #'0x2000'
-    #memaddr = [] # array of address,
     mem_Value = [] #mem(MemStart,0,0,0,0)
-
-    # loop through the created instructions array.
-
  
     for i in range( 50): #this could work for each instruction instr_list:
 
         addr = str(hex(MemStart))
-        #memaddr.append(addr)
         mem_Value.append(mem(addr,0,0,0,0))
 
-        MemStart  += 4   # increment addr by 4, each will have access to every bit.
+        MemStart += 4   # increment addr by 4, each will have access to every bit.
 
     c1= 0
     for row in mem_Value:
@@ -246,17 +244,18 @@ def main():
             print('\n', end = '')
 
         mem_Value[c1].printMem()
-        #print(mem_Value[c1].addr ,mem_Value[c1].b0,mem_Value[c1].b1,mem_Value[c1].b2, mem_Value[c1].b3 ,end = " ")
-        print(mem_Value[c1].addr, end = " ")
         c1+=1
 
+    # so far this is how we can change the memory values, we can probably
+    # make this a function
+    #mem_Value[1].addr = '000'
+    #mem_Value[1].b0 = 10
+    #mem_Value[1].b1 = 20
+    #print(mem_Value[1].addr ,mem_Value[1].b0,mem_Value[1].b1,mem_Value[1].b2, mem_Value[1].b3 ,end = " ")
+    
 
-    mem_Value[1].addr = '000'
-    mem_Value[1].b0 = 10
-    mem_Value[1].b1 = 20
-    print(mem_Value[1].addr ,mem_Value[1].b0,mem_Value[1].b1,mem_Value[1].b2, mem_Value[1].b3 ,end = " ")
 
-    tmp1 = 'a'
+    tmp1 = input("input???")
     while tmp1 != 'q':
         tmp1 = input("type someting") # hex number
 
@@ -266,6 +265,7 @@ def main():
             instructionFunc(x)
         except:
             print("not supported")
+        """
 
 
    # print(memaddr)
