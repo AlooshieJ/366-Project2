@@ -95,6 +95,9 @@ def OR(instr):
     # or rd, rs, rt
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt) + '\n')
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #regfile.write(instr.rd, a | b)
 
 
 def mult(instr):
@@ -102,6 +105,13 @@ def mult(instr):
     print(instr.binary_S + '\n')
     print('mult not done')
     
+#def slt(instr):
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #if(a < b):
+    #   regfile.write(instr.rd, 1)
+    # else:
+    #   regfile.write(instr.rd, 0)
 
 # i - types
 def addi(instr):
