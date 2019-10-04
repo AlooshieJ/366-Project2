@@ -112,20 +112,29 @@ def mult(instr):
     #   regfile.write(instr.rd, 1)
     # else:
     #   regfile.write(instr.rd, 0)
+    
+#def xor(instr):
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #regfile.write(instr.rd, a ^ b)
 
 # i - types
 def addi(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
      #a = regfile.read(instr.rs) 
-     #regfile.write(instr.rt, a + imm)
+     #regfile.write(instr.rt, a + instr.imm)
 
 def ori(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
     # return instr.rt  or str.rs
     #a = regfile.read(instr.rs) 
-    #regfile.write(instr.rt, a | imm)
+    #regfile.write(instr.rt, a | instr.imm)
+    
+#def xori(instr):
+    #a = regfile.read(instr.rs)
+    #regfile.write(instr.rt, a ^ instr.imm)
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
