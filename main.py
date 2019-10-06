@@ -170,15 +170,19 @@ def mfhi(instr):
 
 def mflo (instr):
     return 'Not finished!'
+  
 
 def sll(instr):
     return 'Not finished!'
 
+
 def srl(instr):
     return 'Not finished!'
 
+
 def sltu(instr):
     return 'Not finished!'
+
 
 def AND(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
@@ -207,6 +211,7 @@ def sltu(instr):
 
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
+
 
 # i - types
 def addi(instr):

@@ -20,3 +20,4 @@ beq $4,$2,TEST
 bne $4,$2,TEST
 slt $4,$2,$1
 sltu $4,$2,$1
+and
