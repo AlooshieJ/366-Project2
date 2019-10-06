@@ -88,14 +88,14 @@ def asm_to_bin(asm, labelName, labelIndex):
             f.write(binOUT)
             linePos += 1
 # 0000 00ss ssst tttt dddd d000 0010 0100
-#
-#         elif line[0:4] == "mflo": # mflo $rd
-#             line = line.replace("mflo","")
-#             rd = format(int(line), '05b')
-#             binOUT = str("0000000000000000"+rd+"00000010010" + "\n")
-#             print('binout =  '+ str(binOUT))
-#             f.write(binOUT)
-#             linePos += 1
+
+        elif line[0:4] == "mflo": # mflo $rd
+            line = line.replace("mflo","")
+            rd = format(int(line), '05b')
+            binOUT = str("0000000000000000"+rd+"00000010010" + "\n")
+            print('binout =  '+ str(binOUT))
+            f.write(binOUT)
+            linePos += 1
 
 
         elif (line[0:3] == "ori"):  # ori
@@ -164,7 +164,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
             rt = format(int(line[0]), '05b')
-            f.write( str('100000') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('100000') + str(rs) + str(rt) + str(imm) + '\n')
             linePos += 1
 
         elif (line[0:2] == "sb"):  # sb
@@ -175,7 +175,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
             rt = format(int(line[0]), '05b')
-            f.write( str('101000') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('101000') + str(rs) + str(rt) + str(imm) + '\n')
             linePos += 1
 
         elif (line[0:2] == "lw"):  # lw
@@ -186,7 +186,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
             rt = format(int(line[0]), '05b')
-            f.write( str('100011') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('100011') + str(rs) + str(rt) + str(imm) + '\n')
             linePos += 1
 
         elif (line[0:2] == "sw"):  # sw
@@ -197,7 +197,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
             rt = format(int(line[0]), '05b')
-            f.write( str('101011') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('101011') + str(rs) + str(rt) + str(imm) + '\n')
             linePos += 1
 
         elif (line[0:3] == "beq"):  # beq
@@ -259,7 +259,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             rd = format(int(line[0]), '05b')
             rs = format(int(line[1]), '05b')
             rt = format(int(line[2]), '05b')
-            f.write( str('000000') + str(rs) + str(rt) + str(rd) + str('00000101010') + '\n')
+            f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000101010') + '\n')
             linePos += 1
 
         elif (line[0:1] == "j"):  # JUMP
