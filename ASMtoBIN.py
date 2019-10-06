@@ -56,7 +56,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             rd = format(int(line[0]), '05b')
             rs = format(int(line[1]), '05b')
             rt = format(int(line[2]), '05b')
-            binOUT = str("{0}{1}{2}{3}{4}" ).format('000000',rs,rt,rd,'00000100110')
+            binOUT = str("{0}{1}{2}{3}{4}" ).format('000000',rs,rt,rd,'00000100110' + '\n')
             f.write(binOUT)
             linePos += 1
 
@@ -91,7 +91,7 @@ def asm_to_bin(asm, labelName, labelIndex):
 # 0000 00ss ssst tttt dddd d000 0010 0100
         elif (line[0:4] == "mflo"):  # lo
             line = line.replace("mflo", "")
-            rd = format(int(line[0]), '05b')
+            rd = format(int(line), '05b')
             f.write(str('0000000000000000') + str(rd) + str('00000010010') + '\n')
             linePos += 1
 
@@ -135,7 +135,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             f.write(str('000000') + str(rs) + str(rt) + str('0000000000011000') + '\n')
             linePos += 1
 
-        elif (line[0:3] == "srl"):  # SRL
+        elif (line[0:3] == "srl"):  # SRL $rd,$rt, h
             line = line.replace("srl", "")
             line = line.split(",")
             rd = format(int(line[0]), '05b')
@@ -223,7 +223,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                         f.write(str('000100') + str(rs) + str(rt) + str(jumpDist) + str(' ') + '\n')
             linePos += 1
 
-        elif (line[0:3] == "bne"):  # bne
+        elif (line[0:3] == "bne"):  # bne $rs, $rt, offset /distance
             line = line.replace("bne", "")
             line = line.split(",")
             rs = format(int(line[0]), '05b')
@@ -232,21 +232,22 @@ def asm_to_bin(asm, labelName, labelIndex):
             if (line[2].isdigit()):  # First,test to see if it's a label or a integer
                 f.write(str('000101') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
 
-            else:  # Jumping to label
+            else:  # branching to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[2]):
-                        if(labelIndex[i] +1 <linePos):
-                            print('<')
-                            newLabel = labelIndex[i] - linePos + 65536
+                        if( linePos + 1 - labelIndex[i] < 0):
+                            print('-')
+                            newLabel = linePos - labelIndex[i]  + 65536
                         else:
-                            print('>')
-                            newLabel = labelIndex[i] + linePos
+                            print('+')
+                            newLabel =  linePos + 1
 
                         # call the func to f
                        # jumpDist = label_to_subtract(labelName, labelIndex , linePos)
                         #jumpDist = -1*(linePos  + 2* i - labelIndex[i] ) # - label_to_subtract(labelIndex,linePos) )
                         #jumpDist = bindigits(jumpDist, 16)
-            f.write(str('000101') + str(rs) + str(rt) + str(format(newLabel, '016b')) + '\n')
+            out = str( ('000101') + str(rs) + str(rt) + str(format(newLabel, '016b')) + '\n')
+            f.write(out)
             linePos += 1
 
         elif (line[0:4] == "sltu"):  # sltu

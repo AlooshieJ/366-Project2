@@ -1,33 +1,61 @@
 # lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
 from ASMtoBIN import *
-
+import time
+# lets create a list of indexes we dont want for the registers
+# ex:
+# pc  = [34],
+# lo = [32], hi ...= data[33]
+#[1] -[30] available
+#[0] = 0 always if they index 0 , it returns 0 :))))) so wise
 class registerfile():
     def __init__(self):
         self.data = []
-        for i in range(34):
+        for i in range(35):
             self.data.append(0x00000000)
     def read(self, readindex): 
         if(readindex == 0): 
             return 0
         return self.data[readindex]
+
     def write(self, writeindex, writeback_value):
         if(writeindex != 0):
             self.data[writeindex] = writeback_value
+
     def writeHi(self, writeback_value):
         self.data[33] = writeback_value
+
     def writeLo(self, writebackvalue):
         self.data[32] = writeback_value
+
     def movefromHi(self, destindex):
         self.data[destindex] = self.data[33]
+
     def movefromLo(self, destindex):
         self.data[destindex] = self.data[32]
+
     def readpc(self):
-        return self.data[0]
+        return self.data[34]
+
     def read_and_updatepc(self):
-        temp = self.data[0]
-        self.data[0] += 4
+        temp = self.data[34]
+        self.data[34] += 4
         return temp
+    def printRegs(self):
+        print("Reg:{0} = 0x{1}".format('pc', format(self.readpc()),'08x' ) )
+
+        for i in range(32):
+            if i == 0:
+                pass
+            hex_tmp = format(self.read(i),'08x')
+            print("Reg:{0} = 0x{1}".format(i,hex_tmp) )
+            time.sleep(.25)
+
+        print("Reg:{0} = 0x{1}".format('lo', format(self.read(32)),'08x' ) )
+        print("Reg:{0} = 0x{1}".format('hi', format(self.read(33)),'08x' ) )
+
+
+
 regfile = registerfile()
 class mem():
     def __init__(self, address, b0, b1, b2, b3): # this might be backwards... idk
@@ -67,7 +95,7 @@ def find_memory_address(address):
 
 
     if address[0:7] == '0x3000':
-
+        # not done might not need
         return 8192 + 4()
 
     elif address[0:2] == '0x2':
@@ -95,24 +123,40 @@ class Instruction():
 
         self.opcode = self.binary_S[0:6] # check first 6 bits to determine type.
 
+
         if self.opcode == '000000':  # all r_types have this opcode, and function is the last 6 bits
             self.func = self.binary_S[26:32]
             self.type = 'r_type'
             self.name = r_type[self.func][1]
-        else:  # in this case the only else is type i
+        elif(self.opcode == '000010'):  # check for j_ type
+            self.func = self.opcode
+            self.type = 'j_type'
+            self.name = j_type[self.opcode][1]
+
+            if self.binary_S[6] == '1':  # check the immediate for negative numbers and convert if needed
+                self.imm = -((int(self.binary_S[6:], 2) ^ 0xFFFF) + 1)
+
+            else:
+                self.imm = int(self.binary_S[6:], 2)
+
+        else: # i type
             self.func = self.opcode
             self.type = 'i_type'
             self.name = i_type[self.func][1]
+
+            if self.binary_S[16] == '1':  # check the immediate for negative numbers and convert if needed
+                self.imm = -((int(self.binary_S[16:32], 2) ^ 0xFFFF) + 1)
+
+            else:
+                self.imm = int(self.binary_S[16:32], 2)
 
         # assign what the registers should be
         self.rs = int(self.binary_S[6:11], 2)
         self.rt = int(self.binary_S[11:16], 2)
         self.rd = int(self.binary_S[16:21], 2)
+        self.h =  int(self.binary_S[21:26], 2)
 
-        if self.binary_S[16] == '1':  # check the immediate for negative numbers and convert if needed
-            self.imm = -((int(self.binary_S[16:32], 2) ^ 0xFFFF) + 1)
-        else:
-            self.imm = int(self.binary_S[16:32], 2)
+
 
     def printBinary(self):
         print(self.binary_S)
@@ -201,6 +245,9 @@ def addi(instr):
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a + instr.imm)
 
+def addiu(instr):
+    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
+
 def ori(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
@@ -240,6 +287,14 @@ def bne(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
+# jump
+def j (instr):
+    print(instr.name + str(" ") + str(instr.imm))
+    regfile.write(34,regfile.readpc())
+
+
+
+
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
 # function table in a way..
@@ -256,7 +311,8 @@ r_type = {
     '000000': (sll,'sll'),
     '000010': (srl,'srl'),
     '101011':(sltu,'sltu'),
-    '100100':(AND,'and')
+    '100100':(AND,'and'),
+    '101010':(slt,'slt')
 }
 i_type = {
     # i-types:
@@ -269,7 +325,13 @@ i_type = {
     '101011': (sw,'sw'),
     '100000': (lb,'lb'),
     '000100': (beq,'beq'),
-    '000101': (bne,'bne')}
+    '000101': (bne,'bne'),
+    '001001': (addiu,'addiu')
+}
+j_type = {
+    '000010': (j, 'j')
+
+}
 
 # define registers as dictionary
 hex_nums = { '0x0': 0,
@@ -347,22 +409,40 @@ def main():
     read from the new file created, create an instance of the class with every line.
     
     """
+    sim_instr = []
+    lineCount = 0
     for binary in binF.readlines():
         binary = binary.replace('\n','')
         to_hex = hex(int(binary,2))
-        print(to_hex)
+        #print(to_hex)
+        x = Instruction(to_hex)
+        sim_instr.append(x)
+        sim_instr.append('')
+        sim_instr.append('')
+        sim_instr.append('')
+        lineCount += 4
 
-        try:
-            x = Instruction(to_hex)  # instance of the class with hex number
 
-            if x.type == 'r_type':
-                instructionFunc = r_type[x.func][0]
+
+    pc = 0
+    print("pc= {0} reg 3 = {1}".format(pc, regfile.read(3), '08x'))
+
+    while pc < lineCount * 4:
+        if pc % 4 == 0:
+            if sim_instr[pc].type == 'r_type':
+                instructionFunc = r_type[sim_instr[pc].func][0]
+
+            elif sim_instr[pc].type == 'i_type':
+                instructionFunc = i_type[sim_instr[pc].func][0]
             else:
-                instructionFunc = i_type[x.func][0]
+                instructionFunc = j_type[sim_instr[pc].func][0]
 
-            instructionFunc(x)
-        except:
-            print("not supported")
+            instructionFunc(sim_instr[pc])
+            pc += regfile.readpc()
+        print("pc= {0} reg 3 = {1}".format(pc,regfile.read(3), '08x'))
+        time.sleep(.5)
+
+
 
     # use class to send that index of addr and set information
     MemStart = 8192 #'0x2000'
