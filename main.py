@@ -28,7 +28,7 @@ class registerfile():
         temp = self.data[0]
         self.data[0] += 4
         return temp
-#regfile = registerfile()
+regfile = registerfile()
 class mem():
     def __init__(self, address, b0, b1, b2, b3): # this might be backwards... idk
 
@@ -128,17 +128,17 @@ def add (instr):
     # addi rd,rs,rt
     print(instr.binary_S)
     print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt))
-    #a = regfile.read(instr.rs)
-    #b = regfile.read(instr.rt)
-    #regfile.write(instr.rd, a + b)
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    regfile.write(instr.rd, a + b)
 
 def OR(instr):
     # or rd, rs, rt
     print(instr.binary_S)
     print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt))
-    #a = regfile.read(instr.rs)
-    #b = regfile.read(instr.rt)
-    #regfile.write(instr.rd, a | b)
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    regfile.write(instr.rd, a | b)
 
 
 def mult(instr):
@@ -148,38 +148,41 @@ def mult(instr):
     
 def slt(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
-    #a = regfile.read(instr.rs)
-    #b = regfile.read(instr.rt)
-    # if(a < b):
-    #   regfile.write(instr.rd, 1)
-    # else:
-    #   regfile.write(instr.rd, 0)
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    if(a < b):
+        regfile.write(instr.rd, 1)
+    else:
+        regfile.write(instr.rd, 0)
     
 def xor(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
-    #a = regfile.read(instr.rs) 
-    #b = regfile.read(instr.rt)
-    #regfile.write(instr.rd, a ^ b)
+    a = regfile.read(instr.rs) 
+    b = regfile.read(instr.rt)
+    regfile.write(instr.rd, a ^ b)
 
 
 def multu(instr):
-    return 'Not finished!'
-
-def AND(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #c, d = divmod((a * b), (2^^32))
     #regfile.writeHi(c)
     #regfile.writeLo(d)
+   
+def AND(instr):
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    regfile.write(instr.rd, a & b)
 
 def mfhi(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
-    #regfile.movefromHi(instr.rd)
+    regfile.movefromHi(instr.rd)
 
 def mflo (instr):
     print("{0} ${1}".format(instr.name, instr.rd))
-    #regfile.movefromLo(instr.rd)
+    regfile.movefromLo(instr.rd)
 
 def sll(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
@@ -190,28 +193,25 @@ def srl(instr):
 def sltu(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
 
-def AND(instr):
-    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
-
 
 # i - types
 def addi(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
-     #a = regfile.read(instr.rs) 
-     #regfile.write(instr.rt, a + instr.imm)
+     a = regfile.read(instr.rs) 
+     regfile.write(instr.rt, a + instr.imm)
 
 def ori(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
-    # return instr.rt  or str.rs
-    #a = regfile.read(instr.rs) 
-    #regfile.write(instr.rt, a | instr.imm)
+    return instr.rt  or str.rs
+    a = regfile.read(instr.rs) 
+    regfile.write(instr.rt, a | instr.imm)
 
 def xori(instr):
     print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr.imm))
-    #a = regfile.read(instr.rs)
-    #regfile.write(instr.rt, a ^ instr.imm)
+    a = regfile.read(instr.rs)
+    regfile.write(instr.rt, a ^ instr.imm)
 
 def lui(instr):
     print("{0} ${1}, {2}").format(instr.name,instr.rt,instr.imm)
