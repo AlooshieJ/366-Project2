@@ -165,25 +165,6 @@ def xor(instr):
 def multu(instr):
     return 'Not finished!'
 
-def mfhi(instr):
-    return 'Not finished!'
-
-def mflo (instr):
-    return 'Not finished!'
-  
-
-def sll(instr):
-    return 'Not finished!'
-
-
-def srl(instr):
-    return 'Not finished!'
-
-
-def sltu(instr):
-    return 'Not finished!'
-
-
 def AND(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
     #a = regfile.read(instr.rs)
@@ -395,17 +376,17 @@ def main():
 
 #take as string..
     # look at last 3 bits / 4 know index number
-    #
-    l = 0
-    print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    for row in mem_Value:
-        if int(row.addr, 16) % (4*8) == 0:
-             print( '\n', end="")
-             print(str(row.addr) + '|', end=" ")
-        # new way to write to memory. kinda slow because array O(N)
-        row.writeMem(row.addr, l + 1)
-        l += 1
-        row.printMem()
+    # #
+    # l = 0
+    # print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
+    # for row in mem_Value:
+    #     if int(row.addr, 16) % (4*8) == 0:
+    #          print( '\n', end="")
+    #          print(str(row.addr) + '|', end=" ")
+    #     # new way to write to memory. kinda slow because array O(N)
+    #     row.writeMem(row.addr, l + 1)
+    #     l += 1
+    #     row.printMem()
 
     # the old way to change memory.
     # mem_Value[100].printMem()
