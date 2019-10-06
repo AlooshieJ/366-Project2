@@ -1,4 +1,4 @@
-
+# lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
 from ASMtoBIN import *
 
@@ -170,6 +170,10 @@ def ori(instr):
     #a = regfile.read(instr.rs)
     #regfile.write(instr.rt, a ^ instr.imm)
 
+def lw(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
 # function table in a way..
@@ -181,7 +185,8 @@ func_dict = {
     '011000': (mult, 'mult'),
     # i-types:
     '001000': (addi, 'addi'),
-    '001101': (ori, 'ori')}
+    '001101': (ori, 'ori'),
+    '100011': (lw, 'lw')}
 
 # define registers as dictionary
 hex_nums = { '0x0': 0,
