@@ -126,7 +126,7 @@ class Instruction():
 # r- types
 def add (instr):
     # addi rd,rs,rt
-    print(instr.binary_S)
+    #print(instr.binary_S)
     print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
@@ -134,7 +134,7 @@ def add (instr):
 
 def OR(instr):
     # or rd, rs, rt
-    print(instr.binary_S)
+    #print(instr.binary_S)
     print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
@@ -143,7 +143,7 @@ def OR(instr):
 
 def mult(instr):
     # mult rs, rt
-    print(instr.binary_S)
+    #print(instr.binary_S)
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt))
     
 def slt(instr):
@@ -196,15 +196,15 @@ def sltu(instr):
 
 # i - types
 def addi(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
-     a = regfile.read(instr.rs) 
-     regfile.write(instr.rt, a + instr.imm)
+    a = regfile.read(instr.rs)
+    regfile.write(instr.rt, a + instr.imm)
 
 def ori(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
-    return instr.rt  or str.rs
+    #return instr.rt  or str.rs
     a = regfile.read(instr.rs) 
     regfile.write(instr.rt, a | instr.imm)
 
@@ -217,27 +217,27 @@ def lui(instr):
     print("{0} ${1}, {2}").format(instr.name,instr.rt,instr.imm)
 
 def lw(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
 def sw(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
 def lb(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
 def sb(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
 def beq(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
 def bne(instr):
-    print(instr.binary_S + '\n')
+    #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
 # python directory, like array, but uses "key" to instead of indices.
@@ -376,7 +376,7 @@ def main():
 
 #take as string..
     # look at last 3 bits / 4 know index number
-    # #
+
     # l = 0
     # print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
     # for row in mem_Value:
