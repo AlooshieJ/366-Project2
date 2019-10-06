@@ -160,6 +160,19 @@ def xor(instr):
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a ^ b)
+def multu(instr):
+
+def mfhi(instr):
+
+def mflo (instr):
+    
+def sll(instr):
+
+def srl(instr):
+
+def sltu(instr):
+
+def AND(instr):
 
 # i - types
 def addi(instr):
