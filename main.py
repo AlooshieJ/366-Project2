@@ -172,8 +172,8 @@ def multu(instr):
    
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
-    #a = regfile.read(instr.rs)
-    #b = regfile.read(instr.rt)
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
     regfile.write(instr.rd, a & b)
 
 def mfhi(instr):
