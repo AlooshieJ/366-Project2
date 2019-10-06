@@ -217,8 +217,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             else:  # Jumping to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[2]):
-                        # jumpDist = label_to_subtract(labelName, labelIndex , linePos)
-                        jumpDist = -1 * (linePos +1 + i - labelIndex[i]  )
+                        jumpDist = -1 * (linePos +1  + i - labelIndex[i]  )
                         jumpDist = bindigits(jumpDist, 16)
                         f.write(str('000100') + str(rs) + str(rt) + str(jumpDist) + str(' ') + '\n')
             linePos += 1
@@ -235,18 +234,15 @@ def asm_to_bin(asm, labelName, labelIndex):
             else:  # branching to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[2]):
-                        if( linePos + 1 - labelIndex[i] < 0):
-                            print('-')
-                            newLabel = linePos - labelIndex[i]  + 65536
+                        if(  labelIndex[i] < linePos + 1 ):
+                            print('<, index:{0}, pos + 1: {1}'.format(labelIndex[i],linePos +1 ))
+                            jumpDist = -1 * (linePos + 1 + i - labelIndex[i])
+                            jumpDist = bindigits(jumpDist, 16)
                         else:
-                            print('+')
-                            newLabel =  linePos + 1
+                            print('>')
+                            jumpDist =  linePos + 1
 
-                        # call the func to f
-                       # jumpDist = label_to_subtract(labelName, labelIndex , linePos)
-                        #jumpDist = -1*(linePos  + 2* i - labelIndex[i] ) # - label_to_subtract(labelIndex,linePos) )
-                        #jumpDist = bindigits(jumpDist, 16)
-            out = str( ('000101') + str(rs) + str(rt) + str(format(newLabel, '016b')) + '\n')
+            out = str( ('000101') + str(rs) + str(rt) + str(jumpDist) + '\n')
             f.write(out)
             linePos += 1
 

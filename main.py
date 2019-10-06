@@ -357,19 +357,19 @@ hex_nums = { '0x0': 0,
 # first things first is read an asm file, decipher its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
 # asm = machine code
-def saveJumpLabel(asm, labelIndex, labelName, lineCount):
+def saveJumpLabel(asm, labelIndex, labelName):
+    lineCount = 0
+
 
     for line in asm:
         line = line.replace(" ", "")
         if line.find(":") != -1:
             labelName.append(line[0:line.index(':')])  # save label name from each read line into array
             labelIndex.append(lineCount)  # save label's index
-            #asm[lineCounter] = line[line.index(':') +1 :]
+            asm[lineCount] = line[line.index(':') +1 :]
         lineCount += 1
 
-    for item in range (asm.count('\n')):
 
-        asm.remove('\n')
 
 # other thoughts:
 
@@ -384,10 +384,12 @@ def main():
     lineCount = 0
 
 #   saving label and their index.
-    saveJumpLabel(asm,labelIndex,labelName,lineCount)
-
     for i in range (asm.count('\n')):
         asm.remove('\n')
+
+
+    saveJumpLabel(asm,labelIndex,labelName)
+
 
     print(labelName, labelIndex)
     for line in asm:
@@ -402,8 +404,11 @@ def main():
         else:
             instr_list.append(line) # creates an array of every instruction in the file
 
+    print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
     # writes binary of assembly code to file
     asm_to_bin(instr_list,labelName, labelIndex)
+    print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
+
     """"
     Now we have each instruction at an index, need to convert it to binary...
     read from the new file created, create an instance of the class with every line.
