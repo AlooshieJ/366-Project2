@@ -165,14 +165,19 @@ def multu(instr):
 def mfhi(instr):
 
 def mflo (instr):
-    
+
+
 def sll(instr):
+
 
 def srl(instr):
 
+
 def sltu(instr):
 
+
 def AND(instr):
+
 
 # i - types
 def addi(instr):
