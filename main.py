@@ -161,19 +161,27 @@ def xor(instr):
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a ^ b)
 
+
 def multu(instr):
+    return 'Not finished!'
 
 def mfhi(instr):
+    return 'Not finished!'
 
 def mflo (instr):
-    
+    return 'Not finished!'
+
 def sll(instr):
+    return 'Not finished!'
 
 def srl(instr):
+    return 'Not finished!'
 
 def sltu(instr):
+    return 'Not finished!'
 
 def AND(instr):
+    return 'Not finished!'
 
 # i - types
 def addi(instr):
