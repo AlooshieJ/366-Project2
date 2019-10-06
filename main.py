@@ -160,6 +160,7 @@ def xor(instr):
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a ^ b)
+
 def multu(instr):
 
 def mfhi(instr):
@@ -188,17 +189,27 @@ def ori(instr):
     #a = regfile.read(instr.rs) 
     #regfile.write(instr.rt, a | instr.imm)
 
-    
 def xori(instr):
-    print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr,imm))
+    print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr.imm))
     #a = regfile.read(instr.rs)
     #regfile.write(instr.rt, a ^ instr.imm)
+
 def lui(instr):
     print(" {0} ${1},{2}").format(instr.name,instr.rt,instr.imm)
 
-
-
 def lw(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+
+def sw(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+
+def lb(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+
+def sb(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
 
@@ -224,7 +235,7 @@ i_type = {
     # i-types:
     '001000': (addi, 'addi'),
     '001101': (ori, 'ori'),
-    '100011': (lw, 'lw')}
+    '100011': (lw, 'lw'),
     '001110': (xori,'xori'),
     '001111': (lui,'lui'),
     '101000': (sb,'sb'),
