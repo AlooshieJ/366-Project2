@@ -1,4 +1,4 @@
-
+# lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
 from ASMtoBIN import *
 
@@ -46,7 +46,7 @@ class mem():
        # print(str(self.addr) + str("  ") + self.data, end=" ")
 
 # note, doesnt not work with negatives
-    def writeMem(self,addres, value):
+    def writeMem(self, address, value):
 
         tmp = str( format(int(value),'016b'))
         # 0|0|0|0|0|0|0|0
@@ -126,16 +126,16 @@ class Instruction():
 # r- types
 def add (instr):
     # addi rd,rs,rt
-    print(instr.binary_S  )
-    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt) )
+    print(instr.binary_S)
+    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a + b)
 
 def OR(instr):
     # or rd, rs, rt
-    print(instr.binary_S )
-    print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt) )
+    print(instr.binary_S)
+    print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a | b)
@@ -143,40 +143,70 @@ def OR(instr):
 
 def mult(instr):
     # mult rs, rt
-    print(instr.binary_S )
-    print('mult not done')
+    print(instr.binary_S)
+    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt))
     
 def slt(instr):
-    print("{0} ${1}, ${2}, ${3} ".format(instr.name, instr.rd, instr.rs, instr.rt))
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
-    #if(a < b):
+    # if(a < b):
     #   regfile.write(instr.rd, 1)
     # else:
     #   regfile.write(instr.rd, 0)
     
 def xor(instr):
-    print("{0} ${1}, ${2}, ${3} ".format(instr.name, instr.rd, instr.rs, instr.rt))
-    #a = regfile.read(instr.rs)
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
+    #a = regfile.read(instr.rs) 
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a ^ b)
+
+
 def multu(instr):
+    return 'Not finished!'
 
 def mfhi(instr):
+    return 'Not finished!'
 
 def mflo (instr):
-
+    return 'Not finished!'
+  
 
 def sll(instr):
+    return 'Not finished!'
 
 
 def srl(instr):
+    return 'Not finished!'
 
 
 def sltu(instr):
+    return 'Not finished!'
 
 
 def AND(instr):
+    return 'Not finished!'
+
+    print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #c, d = divmod((a * b), (2^^32))
+    #regfile.writeHi(c)
+    #regfile.writeLo(d)
+def mfhi(instr):
+    print("{0} ${1}".format(instr.name, instr.rd))
+    #regfile.movefromHi(instr.rd)
+def mflo (instr):
+    print("{0} ${1}".format(instr.name, instr.rd))
+    #regfile.movefromLo(instr.rd)
+def sll(instr):
+    print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+def srl(instr):
+    print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+def sltu(instr):
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
+def AND(instr):
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
 
 
 # i - types
@@ -192,21 +222,42 @@ def ori(instr):
     # return instr.rt  or str.rs
     #a = regfile.read(instr.rs) 
     #regfile.write(instr.rt, a | instr.imm)
-    
+
 def xori(instr):
-    print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr,imm))
+    print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr.imm))
     #a = regfile.read(instr.rs)
     #regfile.write(instr.rt, a ^ instr.imm)
+
 def lui(instr):
-    print(" {0} ${1},{2}").format(instr.name,instr.rt,instr.imm)
+    print("{0} ${1}, {2}").format(instr.name,instr.rt,instr.imm)
 
+def lw(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
+def sw(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+
+def lb(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+
+def sb(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+
+def beq(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
+
+def bne(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
-# funciton table in a way..
-
-
+# function table in a way..
 #               key,    [0],  [1]
 r_type = {
     # r - types:
@@ -226,14 +277,14 @@ i_type = {
     # i-types:
     '001000': (addi, 'addi'),
     '001101': (ori, 'ori'),
+    '100011': (lw, 'lw'),
     '001110': (xori,'xori'),
-    '001111':(lui,'lui'),
+    '001111': (lui,'lui'),
     '101000': (sb,'sb'),
     '101011': (sw,'sw'),
     '100000': (lb,'lb'),
     '000100': (beq,'beq'),
-    '000101': (bne,'bne')
-}
+    '000101': (bne,'bne')}
 
 # define registers as dictionary
 hex_nums = { '0x0': 0,
@@ -252,21 +303,18 @@ hex_nums = { '0x0': 0,
              '0xd': 13,
              '0xe': 14,
              '0xf': 15,
-
-
-         'PC': 0
-
+             'PC': 0
 }
 
 
-# first things first is read an asm file, decifer its contents to binary (homework 4),
+# first things first is read an asm file, decipher its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
 # asm = machine code
-def saveJumpLabel(asm,labelIndex,labelName,lineCount):
+def saveJumpLabel(asm, labelIndex, labelName, lineCount):
 
     for line in asm:
         line = line.replace(" ", "")
-        if ( line.find(":") != -1 ):
+        if line.find(":") != -1:
             labelName.append(line[0:line.index(':')])  # save label name from each read line into array
             labelIndex.append(lineCount)  # save label's index
             #asm[lineCounter] = line[line.index(':') +1 :]
@@ -286,12 +334,10 @@ def main():
     instr_list = [] # what we read from file
     labelName = []
     labelIndex = []
-
     lineCount = 0
 
 #   saving label and their index.
     saveJumpLabel(asm,labelIndex,labelName,lineCount)
-
 
     for i in range (asm.count('\n')):
         asm.remove('\n')
@@ -307,12 +353,9 @@ def main():
         #     continue
         #     # asd
         # else:
-        instr_list.append(line) # creates an array of every instruciton in the file
+        instr_list.append(line) # creates an array of every instruction in the file
 
-
-    # writes binary of asembly code to file
-
-
+    # writes binary of assembly code to file
     asm_to_bin(instr_list,labelName, labelIndex)
     """"
     Now we have each instruction at an index, need to convert it to binary...
@@ -336,44 +379,34 @@ def main():
         except:
             print("not supported")
 
-
-    # mem = [[0x2000,0],[0x2001,0],[0x2002,0]]
-    #^^idea 1 ^^
-    # VV  idea 2 VV
-    #mem = [ of addr ]
     # use class to send that index of addr and set information
-
     MemStart = 8192 #'0x2000'
     mem_Value = [] #mem(MemStart,0,0,0,0)
 
     for i in range( 1025): #this could work for each instruction instr_list: -> loop 1025
         addr = str(hex(MemStart))
-        mem_Value.append(mem(addr,0,0,0,0) )
+        mem_Value.append(mem(addr, 0, 0, 0, 0))
         MemStart += 4   # increment addr by 4, each will have access to every bit.
 
 
 #take as string..
     # look at last 3 bits / 4 know index number
     #
-    # l = 0
-    # print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    # for row in mem_Value:
-    #
-    #     if int(row.addr,16) % (4*8) == 0 :
-    #          print( '\n', end= "")
-    #          print(str(row.addr)+ '|',end = " ")
-    #     # new way to write to memory. kinda slow because array O(N)
-    #     row.writeMem(row.addr, l +1)
-    #     l+= 1
-    #     row.printMem()
-
-
+    l = 0
+    print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
+    for row in mem_Value:
+        if int(row.addr, 16) % (4*8) == 0:
+             print( '\n', end="")
+             print(str(row.addr) + '|', end=" ")
+        # new way to write to memory. kinda slow because array O(N)
+        row.writeMem(row.addr, l + 1)
+        l += 1
+        row.printMem()
 
     # the old way to change memory.
     # mem_Value[100].printMem()
     # mem_Value[100].writeMem(100,101010)
     # mem_Value[100].printMem()
-
 
 
 if __name__ == "__main__":
