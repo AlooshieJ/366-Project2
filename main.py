@@ -46,7 +46,7 @@ class mem():
        # print(str(self.addr) + str("  ") + self.data, end=" ")
 
 # note, doesnt not work with negatives
-    def writeMem(self,addres, value):
+    def writeMem(self, address, value):
 
         tmp = str( format(int(value),'08b'))
         # 0|0|0|0|0|0|0|0
@@ -172,7 +172,7 @@ def ori(instr):
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
-# funciton table in a way..
+# function table in a way..
 #               key,    [0],  [1]
 func_dict = {
     # r - types:
@@ -207,14 +207,14 @@ hex_nums = { '0x0': 0,
 }
 
 
-# first things first is read an asm file, decifer its contents to binary (homework 4),
+# first things first is read an asm file, decipher its contents to binary (homework 4),
 # with the binary we can convert into machine code, and use that information to perform simulation..
 # asm = machine code
-def saveJumpLabel(asm,labelIndex,labelName,lineCount):
+def saveJumpLabel(asm, labelIndex, labelName, lineCount):
 
     for line in asm:
         line = line.replace(" ", "")
-        if ( line.find(":") != -1 ):
+        if line.find(":") != -1:
             labelName.append(line[0:line.index(':')])  # save label name from each read line into array
             labelIndex.append(lineCount)  # save label's index
             #asm[lineCounter] = line[line.index(':') +1 :]
@@ -234,12 +234,10 @@ def main():
     instr_list = [] # what we read from file
     labelName = []
     labelIndex = []
-
     lineCount = 0
 
 #   saving label and their index.
     saveJumpLabel(asm,labelIndex,labelName,lineCount)
-
 
     for i in range (asm.count('\n')):
         asm.remove('\n')
@@ -255,12 +253,9 @@ def main():
         #     continue
         #     # asd
         # else:
-        instr_list.append(line) # creates an array of every instruciton in the file
+        instr_list.append(line) # creates an array of every instruction in the file
 
-
-    # writes binary of asembly code to file
-
-
+    # writes binary of assembly code to file
     asm_to_bin(instr_list,labelName, labelIndex)
     """"
     Now we have each instruction at an index, need to convert it to binary...
@@ -280,20 +275,14 @@ def main():
         except:
             print("not supported")
 
-
-    # mem = [[0x2000,0],[0x2001,0],[0x2002,0]]
-    #^^idea 1 ^^
-    # VV  idea 2 VV
-    #mem = [ of addr ]
     # use class to send that index of addr and set information
-
     MemStart = 8192 #'0x2000'
     mem_Value = [] #mem(MemStart,0,0,0,0)
 
     for i in range( 100): #this could work for each instruction instr_list: -> loop 1025
 
         addr = str(hex(MemStart))
-        mem_Value.append(mem(addr,0,0,0,0) )
+        mem_Value.append(mem(addr, 0, 0, 0, 0))
         MemStart += 4   # increment addr by 4, each will have access to every bit.
 
 
@@ -301,12 +290,12 @@ def main():
     print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
     for row in mem_Value:
 
-        if int(row.addr,16) % (4*8) == 0 :
-             print( '\n', end= "")
-             print(str(row.addr)+ '|',end = " ")
+        if int(row.addr, 16) % (4*8) == 0:
+             print( '\n', end="")
+             print(str(row.addr) + '|', end=" ")
         # new way to write to memory. kinda slow because array O(N)
         row.writeMem(row.addr, l + 1)
-        l+= 1
+        l += 1
         row.printMem()
 
 
@@ -314,7 +303,6 @@ def main():
     # mem_Value[100].printMem()
     # mem_Value[100].writeMem(100,101010)
     # mem_Value[100].printMem()
-
 
 
 if __name__ == "__main__":
