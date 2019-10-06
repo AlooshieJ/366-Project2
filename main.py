@@ -126,16 +126,16 @@ class Instruction():
 # r- types
 def add (instr):
     # addi rd,rs,rt
-    print(instr.binary_S  )
-    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt) )
+    print(instr.binary_S)
+    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a + b)
 
 def OR(instr):
     # or rd, rs, rt
-    print(instr.binary_S )
-    print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt) )
+    print(instr.binary_S)
+    print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #regfile.write(instr.rd, a | b)
@@ -143,8 +143,8 @@ def OR(instr):
 
 def mult(instr):
     # mult rs, rt
-    print(instr.binary_S )
-    print('mult not done')
+    print(instr.binary_S)
+    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt))
     
 def slt(instr):
     print("{0} ${1}, ${2}, ${3} ".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -199,19 +199,27 @@ def lui(instr):
 
 def lw(instr):
     print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
 def sw(instr):
     print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
 def lb(instr):
     print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
 
 def sb(instr):
     print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')\n')
+    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+
+def beq(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
+
+def bne(instr):
+    print(instr.binary_S + '\n')
+    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
