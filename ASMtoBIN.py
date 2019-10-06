@@ -80,9 +80,8 @@ def asm_to_bin(asm, labelName, labelIndex):
 # 0000 00ss ssst tttt dddd d000 0010 0100
         elif (line[0:4] == "mflo"):  # lo
             line = line.replace("mflo", "")
-            line = line.split(",")
             rd = format(int(line[0]), '05b')
-            f.write(str('0000000000000000') + str(rd) + str('00000010000') + '\n')
+            f.write(str('0000000000000000') + str(rd) + str('00000010010') + '\n')
             linePos += 1
 
         elif (line[0:5] == "multu"): # MULTU
