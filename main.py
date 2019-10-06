@@ -392,16 +392,16 @@ def main():
 #take as string..
     # look at last 3 bits / 4 know index number
     #
-    l = 0
-    print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    for row in mem_Value:
-        if int(row.addr, 16) % (4*8) == 0:
-             print( '\n', end="")
-             print(str(row.addr) + '|', end=" ")
-        # new way to write to memory. kinda slow because array O(N)
-        row.writeMem(row.addr, l + 1)
-        l += 1
-        row.printMem()
+    # l = 0
+    # print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
+    # for row in mem_Value:
+    #     if int(row.addr, 16) % (4*8) == 0:
+    #          print( '\n', end="")
+    #          print(str(row.addr) + '|', end=" ")
+    #     # new way to write to memory. kinda slow because array O(N)
+    #     row.writeMem(row.addr, l + 1)
+    #     l += 1
+    #     row.printMem()
 
     # the old way to change memory.
     # mem_Value[100].printMem()
