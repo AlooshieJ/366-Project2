@@ -42,7 +42,7 @@ class mem():
     #def write(self, addr):
     #    self.data.append(self.b3+self.b2+self.b1+self.b0)
     def printMem(self ):
-        print(self.data + str('|'), end= " ")
+        print(self.data + str('|'), end=" ")
        # print(str(self.addr) + str("  ") + self.data, end=" ")
 
 # note, doesnt not work with negatives
@@ -181,26 +181,30 @@ def sltu(instr):
     return 'Not finished!'
 
 def AND(instr):
-    return 'Not finished!'
-
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
     #a = regfile.read(instr.rs)
     #b = regfile.read(instr.rt)
     #c, d = divmod((a * b), (2^^32))
     #regfile.writeHi(c)
     #regfile.writeLo(d)
+
 def mfhi(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     #regfile.movefromHi(instr.rd)
+
 def mflo (instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     #regfile.movefromLo(instr.rd)
+
 def sll(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+
 def srl(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+
 def sltu(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
+
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
 
