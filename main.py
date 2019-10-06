@@ -125,6 +125,9 @@ def OR(instr):
     # or rd, rs, rt
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt) + '\n')
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #regfile.write(instr.rd, a | b)
 
 
 def mult(instr):
@@ -132,20 +135,39 @@ def mult(instr):
     print(instr.binary_S + '\n')
     print('mult not done')
     
+#def slt(instr):
+    #print("{0} ${1}, ${2}, ${3}\n".format(instr.name, instr.rd, instr.rs, instr.rt))
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #if(a < b):
+    #   regfile.write(instr.rd, 1)
+    # else:
+    #   regfile.write(instr.rd, 0)
+    
+#def xor(instr):
+    #print("{0} ${1}, ${2}, ${3}\n".format(instr.name, instr.rd, instr.rs, instr.rt))
+    #a = regfile.read(instr.rs)
+    #b = regfile.read(instr.rt)
+    #regfile.write(instr.rd, a ^ b)
 
 # i - types
 def addi(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
      #a = regfile.read(instr.rs) 
-     #regfile.write(instr.rt, a + imm)
+     #regfile.write(instr.rt, a + instr.imm)
 
 def ori(instr):
     print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) + '\n')
     # return instr.rt  or str.rs
     #a = regfile.read(instr.rs) 
-    #regfile.write(instr.rt, a | imm)
+    #regfile.write(instr.rt, a | instr.imm)
+    
+#def xori(instr):
+    #print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr,imm))
+    #a = regfile.read(instr.rs)
+    #regfile.write(instr.rt, a ^ instr.imm)
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
