@@ -50,6 +50,15 @@ def asm_to_bin(asm, labelName, labelIndex):
             f.write(str('001001') + str(rs) + str(rt) + str(imm) + '\n')
 
             linePos += 1
+        elif(line[0:3] == "xor") : # xor $rd ,$rs, $rt
+            line = line.replace("xor","")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            binOUT = str("{0}{1}{2}{3}{4}" ).format('000000',rs,rt,rd,'00000100110')
+            f.write(binOUT)
+            linePos += 1
 
         elif (line[0:4] == "addi"):  # ADDI
             line = line.replace("addi", "")
@@ -77,7 +86,17 @@ def asm_to_bin(asm, labelName, labelIndex):
             rt = format(int(line[2]), '05b')
             binOUT = str("{0}{1}{2}{3}{4}").format('000000', rs, rt, rd, '00000100100') + str('\n')
             f.write(binOUT)
+            linePos += 1
 # 0000 00ss ssst tttt dddd d000 0010 0100
+#
+#         elif line[0:4] == "mflo": # mflo $rd
+#             line = line.replace("mflo","")
+#             rd = format(int(line), '05b')
+#             binOUT = str("0000000000000000"+rd+"00000010010" + "\n")
+#             print('binout =  '+ str(binOUT))
+#             f.write(binOUT)
+#             linePos += 1
+
 
         elif (line[0:3] == "ori"):  # ori
             line = line.replace("ori", "")
