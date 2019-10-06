@@ -163,6 +163,7 @@ def ori(instr):
     # return instr.rt  or str.rs
     #a = regfile.read(instr.rs) 
     #regfile.write(instr.rt, a | instr.imm)
+
     
 #def xori(instr):
     #print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr,imm))
