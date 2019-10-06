@@ -91,12 +91,12 @@ class mem():
     #def loadMem(self,addr):
         #return self.data
 
-def find_memory_address(address):
+def find_memory_address(address): # dont need this, we have a way of incrementing pc
 
 
     if address[0:7] == '0x3000':
         # not done might not need
-        return 8192 + 4()
+        return 8192 + 4(1)
 
     elif address[0:2] == '0x2':
         to_int = (int(address[2:],16))
@@ -424,7 +424,7 @@ def main():
 
 
 
-    pc = 0
+    pc = regfile.data[34]
     print("pc= {0} reg 3 = {1}".format(pc, regfile.read(3), '08x'))
 
     while pc < lineCount * 4:
@@ -438,8 +438,9 @@ def main():
                 instructionFunc = j_type[sim_instr[pc].func][0]
 
             instructionFunc(sim_instr[pc])
-            pc += regfile.readpc()
-        print("pc= {0} reg 3 = {1}".format(pc,regfile.read(3), '08x'))
+            regfile.read_and_updatepc()
+        regfile.printRegs()
+        #print("pc= {0} reg 3 = {1}".format(pc,regfile.read(3), '08x'))
         time.sleep(.5)
 
 
