@@ -3,7 +3,6 @@
 from ASMtoBIN import *
 
 class registerfile():
-    data []
     def __init__(self):
         self.data = []
         for i in range(34):
