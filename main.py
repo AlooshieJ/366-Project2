@@ -30,15 +30,43 @@ class registerfile():
         return temp
 #regfile = registerfile()
 class mem():
-    def __init__(self, address, b0, b1, b2, b3):
-        self.addr= address
-        self.b0 = hex(b0) # addr + 1
-        self.b1 = hex(b1) #addr + 2
-        self.b2 = hex(b2) #addr + 3
-        self.b3 = hex(b3) #addr + 4
+    def __init__(self, address, b0, b1, b2, b3): # this might be backwards... idk
 
-    def printMem(self):
-        print(self.addr,self.b0,self.b1,self.b2,self.b3)
+        self.addr = address
+        self.b0 = b0# addr + 1
+        self.b1 = b1 #addr + 2
+        self.b2 = b2 #addr + 3
+        self.b3 = b3#addr + 4
+        self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
+
+    #def write(self, addr):
+    #    self.data.append(self.b3+self.b2+self.b1+self.b0)
+    def printMem(self ):
+        print(self.data + str('|'), end= " ")
+       # print(str(self.addr) + str("  ") + self.data, end=" ")
+
+# note, doesnt not work with negatives
+    def writeMem(self,addres, value):
+
+        tmp = str( format(int(value),'08b'))
+        # 0|0|0|0|0|0|0|0
+        # 0,1,2,3,4,5,6,7
+        #-8,7,6,5,4,3,2,1
+        #print(tmp)
+        #print(tmp[-2:], tmp[-4:-2], tmp[-6:-4],tmp[-8:-6] )
+        self.b0 = tmp[-2:]
+        self.b1 = tmp[-4:-2]
+        self.b2 = tmp[-6:-4]
+        self.b3 = tmp[-8:-6]
+        self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
+
+    #def loadMem(self,addr):
+        #return self.data
+
+
+
+
+        # print(self.addr,self.b0 + self.b1 + self.b2 + self.b3, end=" ")
 # Lets use a class to define what an instruction is
 # its an opcode , it has an rs, rd ,rt, imm
 # note: add instruction type detection, so we can split up the dictionary...
@@ -221,7 +249,15 @@ def main():
         to_hex = hex(int(binary,2))
         print(to_hex)
 
-    """
+        try:
+            x = Instruction(to_hex)  # instance of the class with hex number
+            #print(x.name)
+            instructionFunc = func_dict[x.func][0]
+            instructionFunc(x)
+        except:
+            print("not supported")
+
+
     # mem = [[0x2000,0],[0x2001,0],[0x2002,0]]
     #^^idea 1 ^^
     # VV  idea 2 VV
@@ -230,52 +266,31 @@ def main():
 
     MemStart = 8192 #'0x2000'
     mem_Value = [] #mem(MemStart,0,0,0,0)
- 
-    for i in range( 50): #this could work for each instruction instr_list:
+
+    for i in range( 100): #this could work for each instruction instr_list: -> loop 1025
 
         addr = str(hex(MemStart))
-        mem_Value.append(mem(addr,0,0,0,0))
-
+        mem_Value.append(mem(addr,0,0,0,0) )
         MemStart += 4   # increment addr by 4, each will have access to every bit.
 
-    c1= 0
+
+    l = 0
+    print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
     for row in mem_Value:
-        if c1 % 8 == 0 :
-            print('\n', end = '')
 
-        mem_Value[c1].printMem()
-        c1+=1
-
-    # so far this is how we can change the memory values, we can probably
-    # make this a function
-    #mem_Value[1].addr = '000'
-    #mem_Value[1].b0 = 10
-    #mem_Value[1].b1 = 20
-    #print(mem_Value[1].addr ,mem_Value[1].b0,mem_Value[1].b1,mem_Value[1].b2, mem_Value[1].b3 ,end = " ")
-    
+        if int(row.addr,16) % (4*8) == 0 :
+             print( '\n', end= "")
+             print(str(row.addr)+ '|',end = " ")
+        # new way to write to memory. kinda slow because array O(N)
+        row.writeMem(row.addr, l + 1)
+        l+= 1
+        row.printMem()
 
 
-    tmp1 = input("input???")
-    while tmp1 != 'q':
-        tmp1 = input("type someting") # hex number
-
-        try:
-            x = Instruction(tmp1) # instance of the class with hex number
-            instructionFunc = func_dict[x.opcode][0]
-            instructionFunc(x)
-        except:
-            print("not supported")
-        """
-
-
-   # print(memaddr)
-
-    #temp = mem(memIndex, )
-
-
-    #print (temp)
-
-
+    # the old way to change memory.
+    # mem_Value[100].printMem()
+    # mem_Value[100].writeMem(100,101010)
+    # mem_Value[100].printMem()
 
 
 
