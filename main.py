@@ -396,11 +396,11 @@ def main():
         line = line.replace('#','')
         line = line.replace('zero','0')
 
-        # if line.find(':') != -1 :
-        #     continue
-        #     # asd
-        # else:
-        instr_list.append(line) # creates an array of every instruction in the file
+        if line.find(':') != -1 :
+            pass
+            # asd
+        else:
+            instr_list.append(line) # creates an array of every instruction in the file
 
     # writes binary of assembly code to file
     asm_to_bin(instr_list,labelName, labelIndex)
@@ -414,16 +414,29 @@ def main():
     for binary in binF.readlines():
         binary = binary.replace('\n','')
         to_hex = hex(int(binary,2))
-        #print(to_hex)
+        print(to_hex)
         x = Instruction(to_hex)
         sim_instr.append(x)
         sim_instr.append('')
         sim_instr.append('')
         sim_instr.append('')
+        print(lineCount /4,end = ' ')
+        # debuging
+        if sim_instr[lineCount].type == 'r_type':
+            instructionFunc = r_type[sim_instr[lineCount].func][0]
+
+        elif sim_instr[lineCount].type == 'i_type':
+            instructionFunc = i_type[sim_instr[lineCount].func][0]
+        else:
+            instructionFunc = j_type[sim_instr[lineCount].func][0]
+
+        instructionFunc(sim_instr[lineCount])
+
         lineCount += 4
 
-
-
+    """
+     # THIS is the loop for the similator. only tested infinite loop w/ jump instruction
+     # pc increments correctly
     pc = regfile.data[34]
     print("pc= {0} reg 3 = {1}".format(pc, regfile.read(3), '08x'))
 
@@ -438,11 +451,11 @@ def main():
                 instructionFunc = j_type[sim_instr[pc].func][0]
 
             instructionFunc(sim_instr[pc])
-            regfile.read_and_updatepc()
-        regfile.printRegs()
-        #print("pc= {0} reg 3 = {1}".format(pc,regfile.read(3), '08x'))
-        time.sleep(.5)
-
+            pc = regfile.read_and_updatepc()
+        #regfile.printRegs()
+        #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
+        time.sleep(1)
+    """
 
 
     # use class to send that index of addr and set information

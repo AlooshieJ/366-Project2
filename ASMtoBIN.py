@@ -109,7 +109,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
             rs = format(int(line[1]), '05b')
             rt = format(int(line[0]), '05b')
-            f.write(str('001000') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('001101') + str(rs) + str(rt) + str(imm) + '\n')
             linePos += 1
 
         elif (line[0:4] == "mfhi"):  # MFHI
