@@ -127,7 +127,7 @@ class Instruction():
 def add (instr):
     # addi rd,rs,rt
     #print(instr.binary_S)
-    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt))
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
     regfile.write(instr.rd, a + b)
@@ -135,7 +135,7 @@ def add (instr):
 def OR(instr):
     # or rd, rs, rt
     #print(instr.binary_S)
-    print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt))
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
     regfile.write(instr.rd, a | b)
@@ -144,7 +144,7 @@ def OR(instr):
 def mult(instr):
     # mult rs, rt
     #print(instr.binary_S)
-    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt))
+    print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
     
 def slt(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -197,13 +197,13 @@ def sltu(instr):
 # i - types
 def addi(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
+    print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rt, instr.rs, instr.imm))
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a + instr.imm)
 
 def ori(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
+    print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rt, instr.rs, instr.imm))
     #return instr.rt  or str.rs
     a = regfile.read(instr.rs) 
     regfile.write(instr.rt, a | instr.imm)
@@ -219,18 +219,19 @@ def lui(instr):
 def lw(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def sw(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def lb(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def sb(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def beq(instr):
     #print(instr.binary_S + '\n')
