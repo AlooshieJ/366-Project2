@@ -218,7 +218,6 @@ def lui(instr):
 
 def lw(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def sw(instr):
