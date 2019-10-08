@@ -290,7 +290,7 @@ def bne(instr):
 # jump
 def j (instr):
     print(instr.name + str(" ") + str(instr.imm))
-    regfile.write(34,regfile.readpc())
+    regfile.write(34,instr.imm)
 
 
 
@@ -404,10 +404,9 @@ def main():
         else:
             instr_list.append(line) # creates an array of every instruction in the file
 
-    print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
     # writes binary of assembly code to file
     asm_to_bin(instr_list,labelName, labelIndex)
-    print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
+    #print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
 
     """"
     Now we have each instruction at an index, need to convert it to binary...
@@ -425,21 +424,21 @@ def main():
         sim_instr.append('')
         sim_instr.append('')
         sim_instr.append('')
-        print(lineCount /4,end = ' ')
+        #print(lineCount /4,end = ' ')
         # debuging
-        if sim_instr[lineCount].type == 'r_type':
-            instructionFunc = r_type[sim_instr[lineCount].func][0]
-
-        elif sim_instr[lineCount].type == 'i_type':
-            instructionFunc = i_type[sim_instr[lineCount].func][0]
-        else:
-            instructionFunc = j_type[sim_instr[lineCount].func][0]
-
-        instructionFunc(sim_instr[lineCount])
+        # if sim_instr[lineCount].type == 'r_type':
+        #     instructionFunc = r_type[sim_instr[lineCount].func][0]
+        #
+        # elif sim_instr[lineCount].type == 'i_type':
+        #     instructionFunc = i_type[sim_instr[lineCount].func][0]
+        # else:
+        #     instructionFunc = j_type[sim_instr[lineCount].func][0]
+        #
+        # instructionFunc(sim_instr[lineCount])
 
         lineCount += 4
 
-    """
+    #"""
      # THIS is the loop for the similator. only tested infinite loop w/ jump instruction
      # pc increments correctly
     pc = regfile.data[34]
@@ -458,9 +457,9 @@ def main():
             instructionFunc(sim_instr[pc])
             pc = regfile.read_and_updatepc()
         #regfile.printRegs()
-        #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
+        print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
         time.sleep(1)
-    """
+    #"""
 
 
     # use class to send that index of addr and set information
