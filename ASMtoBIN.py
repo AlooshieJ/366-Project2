@@ -4,7 +4,8 @@
 
 def bindigits(n, bits):
     s = bin(n & int("1"*bits, 2))[2:]
-    return ("{0:0>%s}" % (bits)).format(s)
+    return ("{0:0>%s}" % bits).format(s)
+
 
 def label_to_subtract(labelName,labelIndex, linePos):
     inner_count = 0
@@ -12,11 +13,11 @@ def label_to_subtract(labelName,labelIndex, linePos):
 
         tmpPOS = labelIndex[i] - linePos
         if tmpPOS < 0:
-            for n in range( (labelIndex[i] +1 ), linePos):
+            for n in range((labelIndex[i] + 1), linePos):
                 if n in labelIndex:
-                    inner_count +=1
+                    inner_count += 1
                 tmpPOS = tmpPOS + inner_count
-            value = format(65536 + int(tmpPOS),'016b')
+            value = format(65536 + int(tmpPOS), '016b')
 
         else:
             for n in range(linePos,(labelIndex[i] +1) ):
@@ -29,7 +30,6 @@ def label_to_subtract(labelName,labelIndex, linePos):
     return value
 
 
-
 def asm_to_bin(asm, labelName, labelIndex):
 
     linePos = 0
@@ -39,6 +39,7 @@ def asm_to_bin(asm, labelName, labelIndex):
         line = line.replace("\n", "")  # Removes extra chars
         line = line.replace("$", "")
         line = line.replace(" ", "")
+        line = line.replace("%", ",")
         line = line.replace("zero", "0")  # assembly can also use both $zero and $0
 
         if (line[0:5] == "addiu"):  # ADDIU
@@ -51,12 +52,12 @@ def asm_to_bin(asm, labelName, labelIndex):
 
             linePos += 1
         elif(line[0:3] == "xor") : # xor $rd ,$rs, $rt
-            line = line.replace("xor","")
+            line = line.replace("xor", "")
             line = line.split(",")
             rd = format(int(line[0]), '05b')
             rs = format(int(line[1]), '05b')
             rt = format(int(line[2]), '05b')
-            binOUT = str("{0}{1}{2}{3}{4}" ).format('000000',rs,rt,rd,'00000100110' + '\n')
+            binOUT = str("{0}{1}{2}{3}{4}").format('000000', rs, rt, rd, '00000100110' + '\n')
             f.write(binOUT)
             linePos += 1
 
@@ -78,17 +79,16 @@ def asm_to_bin(asm, labelName, labelIndex):
             f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100000') + '\n')
             linePos += 1
 
-
-        elif(line[0:3] == "and"): #bitwise and | and $rd,$rs,$rt
-            line = line.replace("and","")
+        elif(line[0:3] == "and"):  # bitwise and | and $rd,$rs,$rt
+            line = line.replace("and", "")
             line = line.split(",")
-            rd = format(int(line[0]),'05b')
-            rs = format(int(line[1]),'05b')
-            rt = format(int(line[2]),'05b')
-            binOUT = str("{0}{1}{2}{3}{4}" ).format('000000',rs,rt,rd,'00000100100'+ "\n")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            binOUT = str("{0}{1}{2}{3}{4}").format('000000', rs, rt, rd, '00000100100' + "\n")
             f.write(binOUT)
             linePos += 1
-# 0000 00ss ssst tttt dddd d000 0010 0100
+
         elif (line[0:4] == "mflo"):  # lo
             line = line.replace("mflo", "")
             rd = format(int(line), '05b')
@@ -96,12 +96,11 @@ def asm_to_bin(asm, labelName, labelIndex):
             linePos += 1
 
         elif line[0:4] == "mflo": # mflo $rd
-            line = line.replace("mflo","")
+            line = line.replace("mflo", "")
             rd = format(int(line), '05b')
             binOUT = str("0000000000000000"+rd+"00000010010" + "\n")
             f.write(binOUT)
             linePos += 1
-
 
         elif (line[0:3] == "ori"):  # ori
             line = line.replace("ori", "")
@@ -212,12 +211,12 @@ def asm_to_bin(asm, labelName, labelIndex):
             rt = format(int(line[1]), '05b')
 
             if (line[2].isdigit()):  # First,test to see if it's a label or a integer
-                f.write(str(linePos) + str('000100') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
+                f.write(str('000100') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
 
             else:  # Jumping to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[2]):
-                        jumpDist = -1 * (linePos +1  + i - labelIndex[i]  )
+                        jumpDist = -1 * (linePos + 1 + i - labelIndex[i])
                         jumpDist = bindigits(jumpDist, 16)
                         f.write(str('000100') + str(rs) + str(rt) + str(jumpDist) + str(' ') + '\n')
             linePos += 1
@@ -234,13 +233,9 @@ def asm_to_bin(asm, labelName, labelIndex):
             else:  # branching to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[2]):
-                        if(  labelIndex[i] < linePos + 1 ):
-                            print('<, index:{0}, pos + 1: {1}'.format(labelIndex[i],linePos +1 ))
-                            jumpDist = -1 * (linePos + 1 + i - labelIndex[i])
-                            jumpDist = bindigits(jumpDist, 16)
-                        else:
-                            print('>')
-                            jumpDist =  linePos + 1
+                        #print('<, index:{0}, pos + 1: {1}'.format(labelIndex[i],linePos +1 ))
+                        jumpDist = -1 * (linePos + 1 + i - labelIndex[i])
+                        jumpDist = bindigits(jumpDist, 16)
 
             out = str( ('000101') + str(rs) + str(rt) + str(jumpDist) + '\n')
             f.write(out)
@@ -274,12 +269,12 @@ def asm_to_bin(asm, labelName, labelIndex):
             # We need to save the label destination and its target location
 
             if (line[0].isdigit()):  # First,test to see if it's a label or a integer
-                f.write( str('000010') + str(format(int(line[0]), '026b')) + '\n')
+                f.write(str('000010') + str(format(int(line[0]), '026b')) + '\n')
 
             else:  # Jumping to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[0]):
-                        f.write( str('000010') + str(format(int(labelIndex[i]), '026b')) + '\n')
+                        f.write(str('000010') + str(format(int(labelIndex[i]), '026b')) + '\n')
             linePos += 1
 
     print(linePos)
