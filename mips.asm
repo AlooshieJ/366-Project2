@@ -7,7 +7,11 @@ addi $3,$3,-2
 addi $2,$5,-1
 addiu $6,$5,12
 multu $2,$4
+mfhi $4
+mflo $3
 mult $2,$4
+mfhi $4
+mflo $3
 srl $5,$4,3
 TEST:
 lb $3,10($5)
@@ -19,8 +23,6 @@ beq $4,$2,L1
 slt $4,$2,$1
 sltu $4,$2,$1
 and $4,$5,$2
-mflo $3
-mfhi $3
 and $3,$20,$2
 xor $2,$4 ,$14
 mflo $15

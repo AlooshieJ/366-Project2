@@ -1,7 +1,15 @@
 # lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
 from ASMtoBIN import *
+from tabulate import tabulate
 import time
+import os
+
+#added for - registers
+def twosComp(number):
+        return 4294967296 + int(number)
+
+
 # lets create a list of indexes we dont want for the registers
 # ex:
 # pc  = [34],
@@ -20,13 +28,16 @@ class registerfile():
 
     def write(self, writeindex, writeback_value):
         if(writeindex != 0):
-            self.data[writeindex] = writeback_value
+            if writeback_value < 0:
+                self.data[writeindex] = twosComp(writeback_value)
+            else:
+                self.data[writeindex] = writeback_value
 
     def writeHi(self, writeback_value):
         self.data[33] = writeback_value
 
     def writeLo(self, writebackvalue):
-        self.data[32] = writeback_value
+        self.data[32] = writebackvalue
 
     def movefromHi(self, destindex):
         self.data[destindex] = self.data[33]
@@ -42,17 +53,21 @@ class registerfile():
         self.data[34] += 4
         return temp
     def printRegs(self):
-        print("Reg:{0} = 0x{1}".format('pc', format(self.readpc()),'08x' ) )
-
-        for i in range(32):
+       #print("Reg:{0} = 0x{1}".format('pc', format(self.readpc()),'08x' ) )
+        table =[[]]
+        for i in range(35):
             if i == 0:
                 pass
-            hex_tmp = format(self.read(i),'08x')
+            hex_tmp = format(self.read(i)  ,'08x')
+            table.append([hex_tmp])
             print("Reg:{0} = 0x{1}".format(i,hex_tmp) )
-            time.sleep(.25)
 
-        print("Reg:{0} = 0x{1}".format('lo', format(self.read(32)),'08x' ) )
-        print("Reg:{0} = 0x{1}".format('hi', format(self.read(33)),'08x' ) )
+        print(tabulate(table, showindex="always"))
+        time.sleep(1)
+
+    # print("Reg:{0} = 0x{1}".format('lo', format(self.read(32)),'08x' ) )
+        # print("Reg:{0} = 0x{1}".format('hi', format(self.read(33)),'08x' ) )
+        # time.sleep(10)
 
 
 
@@ -208,11 +223,11 @@ def xor(instr):
 
 def multu(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
-    #a = regfile.read(instr.rs)
-    #b = regfile.read(instr.rt)
-    #c, d = divmod((a * b), (2^^32))
-    #regfile.writeHi(c)
-    #regfile.writeLo(d)
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    c,  d = divmod((a * b), (2^32))
+    regfile.writeHi(c)
+    regfile.writeLo(d)
    
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -456,9 +471,9 @@ def main():
 
             instructionFunc(sim_instr[pc])
             pc = regfile.read_and_updatepc()
-        #regfile.printRegs()
-        print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
-        time.sleep(1)
+        regfile.printRegs()
+        #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
+        #time.sleep(1)
     #"""
 
 
