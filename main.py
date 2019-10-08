@@ -61,10 +61,10 @@ class mem():
     def __init__(self, address, b0, b1, b2, b3): # this might be backwards... idk
 
         self.addr = address
-        self.b0 = b0 # addr + 1
-        self.b1 = b1 # addr + 2
-        self.b2 = b2 # addr + 3
-        self.b3 = b3 # addr + 4
+        self.b0 = b0  # addr + 1
+        self.b1 = b1  # addr + 2
+        self.b2 = b2  # addr + 3
+        self.b3 = b3  # addr + 4
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
     #def write(self, addr):
@@ -91,8 +91,8 @@ class mem():
     #def loadMem(self,addr):
         #return self.data
 
-def find_memory_address(address): # dont need this, we have a way of incrementing pc
 
+def find_memory_address(address): # dont need this, we have a way of incrementing pc
 
     if address[0:7] == '0x3000':
         # not done might not need
@@ -154,7 +154,7 @@ class Instruction():
         self.rs = int(self.binary_S[6:11], 2)
         self.rt = int(self.binary_S[11:16], 2)
         self.rd = int(self.binary_S[16:21], 2)
-        self.h =  int(self.binary_S[21:26], 2)
+        self.h = int(self.binary_S[21:26], 2)
 
 
 
@@ -171,7 +171,7 @@ class Instruction():
 def add (instr):
     # addi rd,rs,rt
     #print(instr.binary_S)
-    print( instr.name + " $" + str(instr.rd) +", $" + str(instr.rs) + ", $" + str(instr.rt))
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
     regfile.write(instr.rd, a + b)
@@ -179,7 +179,7 @@ def add (instr):
 def OR(instr):
     # or rd, rs, rt
     #print(instr.binary_S)
-    print(instr.name + " $" + str(instr.rd) + ", $" + str(instr.rs) + ", $" + str(instr.rt))
+    print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
     regfile.write(instr.rd, a | b)
@@ -188,7 +188,7 @@ def OR(instr):
 def mult(instr):
     # mult rs, rt
     #print(instr.binary_S)
-    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt))
+    print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
     
 def slt(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -241,7 +241,7 @@ def sltu(instr):
 # i - types
 def addi(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
+    print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rt, instr.rs, instr.imm))
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a + instr.imm)
 
@@ -250,7 +250,7 @@ def addiu(instr):
 
 def ori(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
+    print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rt, instr.rs, instr.imm))
     #return instr.rt  or str.rs
     a = regfile.read(instr.rs) 
     regfile.write(instr.rt, a | instr.imm)
@@ -265,19 +265,19 @@ def lui(instr):
 
 def lw(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def sw(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def lb(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def sb(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rt) + ", " + str(instr.imm) + "($" + str(instr.rs) + ')')
+    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 def beq(instr):
     #print(instr.binary_S + '\n')
@@ -304,29 +304,29 @@ r_type = {
     '100000': (add, 'add'),
     '100101': (OR, 'or'),
     '011000': (mult, 'mult'),
-    '011001': (multu,'multu'),
-    '010000': (mfhi,'mfhi'),
-    '010010':(mflo,'mflo'),
-    '100110':(xor,'xor'),
-    '000000': (sll,'sll'),
-    '000010': (srl,'srl'),
-    '101011':(sltu,'sltu'),
-    '100100':(AND,'and'),
-    '101010':(slt,'slt')
+    '011001': (multu, 'multu'),
+    '010000': (mfhi, 'mfhi'),
+    '010010': (mflo, 'mflo'),
+    '100110': (xor, 'xor'),
+    '000000': (sll, 'sll'),
+    '000010': (srl, 'srl'),
+    '101011': (sltu, 'sltu'),
+    '100100': (AND, 'and'),
+    '101010': (slt, 'slt')
 }
 i_type = {
     # i-types:
     '001000': (addi, 'addi'),
     '001101': (ori, 'ori'),
     '100011': (lw, 'lw'),
-    '001110': (xori,'xori'),
-    '001111': (lui,'lui'),
-    '101000': (sb,'sb'),
-    '101011': (sw,'sw'),
-    '100000': (lb,'lb'),
-    '000100': (beq,'beq'),
-    '000101': (bne,'bne'),
-    '001001': (addiu,'addiu')
+    '001110': (xori, 'xori'),
+    '001111': (lui, 'lui'),
+    '101000': (sb, 'sb'),
+    '101011': (sw, 'sw'),
+    '100000': (lb, 'lb'),
+    '000100': (beq, 'beq'),
+    '000101': (bne, 'bne'),
+    '001001': (addiu, 'addiu')
 }
 j_type = {
     '000010': (j, 'j')
@@ -370,9 +370,6 @@ def saveJumpLabel(asm, labelIndex, labelName):
         lineCount += 1
 
 
-
-# other thoughts:
-
 def main():
     # input asm file
     h = open("mips.asm",'r')
@@ -387,9 +384,7 @@ def main():
     for i in range (asm.count('\n')):
         asm.remove('\n')
 
-
     saveJumpLabel(asm,labelIndex,labelName)
-
 
     print(labelName, labelIndex)
     for line in asm:
@@ -416,8 +411,8 @@ def main():
     sim_instr = []
     lineCount = 0
     for binary in binF.readlines():
-        binary = binary.replace('\n','')
-        to_hex = hex(int(binary,2))
+        binary = binary.replace('\n', '')
+        to_hex = hex(int(binary, 2))
         print(to_hex)
         x = Instruction(to_hex)
         sim_instr.append(x)
