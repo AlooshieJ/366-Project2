@@ -49,8 +49,18 @@ def asm_to_bin(asm, labelName, labelIndex):
             rs = format(int(line[1]), '05b')
             rt = format(int(line[0]), '05b')
             f.write(str('001001') + str(rs) + str(rt) + str(imm) + '\n')
-
             linePos += 1
+
+        elif (line[0:4] == "xori"):  # xori rt,rs,imm
+            line = line.replace("xori", "")
+            line = line.split(",")
+            imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[0]), '05b')
+            binOUT = str('001110'+ rs+rt+str(imm) +'\n')
+            f.write(binOUT)
+            linePos += 1
+
         elif(line[0:3] == "xor") : # xor $rd ,$rs, $rt
             line = line.replace("xor", "")
             line = line.split(",")
@@ -110,6 +120,14 @@ def asm_to_bin(asm, labelName, labelIndex):
             rt = format(int(line[0]), '05b')
             f.write(str('001101') + str(rs) + str(rt) + str(imm) + '\n')
             linePos += 1
+        elif line[0:2] == "or": # or $rd, rs, rt
+            line = line.replace("or", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            f.write(str('000000') + str(rs) + str(rt) + str(rd) +'00000100101'+ '\n')
+            linePos += 1
 
         elif (line[0:4] == "mfhi"):  # MFHI
             line = line.replace("mfhi", "")
@@ -149,7 +167,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             rd = format(int(line[0]), '05b')
             rt = format(int(line[1]), '05b')
             rh = format(int(line[2]), '05b')
-            f.write(str('00000000000') + str(rt) + str(rd) + str(rh) + str('000100') + '\n')
+            f.write(str('00000000000') + str(rt) + str(rd) + str(rh) + str('000000') + '\n')
             linePos += 1
 
         elif (line[0:3] == "lui"):  # LUI
