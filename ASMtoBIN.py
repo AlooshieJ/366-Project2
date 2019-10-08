@@ -212,12 +212,12 @@ def asm_to_bin(asm, labelName, labelIndex):
             rt = format(int(line[1]), '05b')
 
             if (line[2].isdigit()):  # First,test to see if it's a label or a integer
-                f.write(str(linePos) + str('000100') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
+                f.write(str('000100') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
 
             else:  # Jumping to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[2]):
-                        jumpDist = -1 * (linePos +1  + i - labelIndex[i]  )
+                        jumpDist = -1 * (linePos + 1 + i - labelIndex[i])
                         jumpDist = bindigits(jumpDist, 16)
                         f.write(str('000100') + str(rs) + str(rt) + str(jumpDist) + str(' ') + '\n')
             linePos += 1
@@ -234,13 +234,9 @@ def asm_to_bin(asm, labelName, labelIndex):
             else:  # branching to label
                 for i in range(len(labelName)):
                     if (labelName[i] == line[2]):
-                        if(  labelIndex[i] < linePos + 1 ):
-                            print('<, index:{0}, pos + 1: {1}'.format(labelIndex[i],linePos +1 ))
-                            jumpDist = -1 * (linePos + 1 + i - labelIndex[i])
-                            jumpDist = bindigits(jumpDist, 16)
-                        else:
-                            print('>')
-                            jumpDist =  linePos + 1
+                        #print('<, index:{0}, pos + 1: {1}'.format(labelIndex[i],linePos +1 ))
+                        jumpDist = -1 * (linePos + 1 + i - labelIndex[i])
+                        jumpDist = bindigits(jumpDist, 16)
 
             out = str( ('000101') + str(rs) + str(rt) + str(jumpDist) + '\n')
             f.write(out)

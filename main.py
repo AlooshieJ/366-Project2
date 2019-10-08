@@ -61,10 +61,10 @@ class mem():
     def __init__(self, address, b0, b1, b2, b3): # this might be backwards... idk
 
         self.addr = address
-        self.b0 = b0 # addr + 1
-        self.b1 = b1 # addr + 2
-        self.b2 = b2 # addr + 3
-        self.b3 = b3 # addr + 4
+        self.b0 = b0  # addr + 1
+        self.b1 = b1  # addr + 2
+        self.b2 = b2  # addr + 3
+        self.b3 = b3  # addr + 4
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
     #def write(self, addr):
@@ -154,7 +154,7 @@ class Instruction():
         self.rs = int(self.binary_S[6:11], 2)
         self.rt = int(self.binary_S[11:16], 2)
         self.rd = int(self.binary_S[16:21], 2)
-        self.h =  int(self.binary_S[21:26], 2)
+        self.h = int(self.binary_S[21:26], 2)
 
 
 
@@ -306,13 +306,13 @@ r_type = {
     '011000': (mult, 'mult'),
     '011001': (multu,'multu'),
     '010000': (mfhi,'mfhi'),
-    '010010':(mflo,'mflo'),
-    '100110':(xor,'xor'),
+    '010010': (mflo,'mflo'),
+    '100110': (xor,'xor'),
     '000000': (sll,'sll'),
     '000010': (srl,'srl'),
-    '101011':(sltu,'sltu'),
-    '100100':(AND,'and'),
-    '101010':(slt,'slt')
+    '101011': (sltu,'sltu'),
+    '100100': (AND,'and'),
+    '101010': (slt,'slt')
 }
 i_type = {
     # i-types:
@@ -387,9 +387,7 @@ def main():
     for i in range (asm.count('\n')):
         asm.remove('\n')
 
-
     saveJumpLabel(asm,labelIndex,labelName)
-
 
     print(labelName, labelIndex)
     for line in asm:
@@ -416,8 +414,8 @@ def main():
     sim_instr = []
     lineCount = 0
     for binary in binF.readlines():
-        binary = binary.replace('\n','')
-        to_hex = hex(int(binary,2))
+        binary = binary.replace('\n', '')
+        to_hex = hex(int(binary, 2))
         print(to_hex)
         x = Instruction(to_hex)
         sim_instr.append(x)
