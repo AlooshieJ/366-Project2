@@ -1,7 +1,17 @@
 # lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
 from ASMtoBIN import *
+from tabulate import tabulate
 import time
+import os
+
+
+
+#added for - registers
+def twosComp(number):
+        return 4294967296 + int(number)
+
+
 # lets create a list of indexes we dont want for the registers
 # ex:
 # pc  = [34],
@@ -20,13 +30,16 @@ class registerfile():
 
     def write(self, writeindex, writeback_value):
         if(writeindex != 0):
-            self.data[writeindex] = writeback_value
+            if writeback_value < 0:
+                self.data[writeindex] = twosComp(writeback_value)
+            else:
+                self.data[writeindex] = writeback_value
 
     def writeHi(self, writeback_value):
         self.data[33] = writeback_value
 
     def writeLo(self, writebackvalue):
-        self.data[32] = writeback_value
+        self.data[32] = writebackvalue
 
     def movefromHi(self, destindex):
         self.data[destindex] = self.data[33]
@@ -37,26 +50,32 @@ class registerfile():
     def readpc(self):
         return self.data[34]
 
-    def read_and_updatepc(self):
-        temp = self.data[34]
+    def updatepc(self):
         self.data[34] += 4
-        return temp
-    def printRegs(self):
-        print("Reg:{0} = 0x{1}".format('pc', format(self.readpc()),'08x' ) )
 
-        for i in range(32):
+
+    def printRegs(self):
+        #print(self.data )
+       #print("Reg:{0} = 0x{1}".format('pc', format(self.readpc()),'08x' ) )
+        #table =[[]]
+        for i in range(35):
             if i == 0:
                 pass
-            hex_tmp = format(self.read(i),'08x')
-            print("Reg:{0} = 0x{1}".format(i,hex_tmp) )
-            time.sleep(.25)
-
-        print("Reg:{0} = 0x{1}".format('lo', format(self.read(32)),'08x' ) )
-        print("Reg:{0} = 0x{1}".format('hi', format(self.read(33)),'08x' ) )
+            hex_tmp = format(self.read(i)  ,'08x')
+            print("Reg:{0} = 0x{1}".format(i, hex_tmp))
+            #table.append([hex_tmp])
 
 
+        #print(tabulate(table, showindex="always"))
+        time.sleep(1)
 
+
+        # time.sleep(10)
+
+
+memory = []  # mem(MemStart,0,0,0,0)
 regfile = registerfile()
+
 class mem():
     def __init__(self, address, b0, b1, b2, b3): # this might be backwards... idk
 
@@ -67,10 +86,14 @@ class mem():
         self.b3 = b3  # addr + 4
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
-    #def write(self, addr):
-    #    self.data.append(self.b3+self.b2+self.b1+self.b0)
-    def printMem(self ):
-        print(self.data + str('|'), end=" ")
+
+    def printMem(self ):    # b0 = msb , b3 = lsb
+        b0 =format(  self.b0, '02x')
+        b1 =format(  self.b1, '02x')
+        b2 =format(  self.b2, '02x')
+        b3 =format(  self.b3, '02x')
+        #data = str(b3 + b2 + b1 + b0 )
+        print( "{0} 0x {1} {2} {3} {4}".format(self.addr, b0,b1,b2,b3), end= " " )
        # print(str(self.addr) + str("  ") + self.data, end=" ")
 
 # note, doesnt not work with negatives
@@ -208,11 +231,11 @@ def xor(instr):
 
 def multu(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
-    #a = regfile.read(instr.rs)
-    #b = regfile.read(instr.rt)
-    #c, d = divmod((a * b), (2^^32))
-    #regfile.writeHi(c)
-    #regfile.writeLo(d)
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    c,  d = divmod((a * b), (2^32))
+    regfile.writeHi(c)
+    regfile.writeLo(d)
    
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -230,6 +253,12 @@ def mflo (instr):
 
 def sll(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+    a = regfile.read( instr.rt)
+    b = instr.h
+    if a < 0:
+        regfile.write(instr.rd, twosComp(a)<< b)
+    else:
+        regfile.write(instr.rd, a<<b)
 
 def srl(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
@@ -329,29 +358,8 @@ i_type = {
     '001001': (addiu, 'addiu')
 }
 j_type = {
-    '000010': (j, 'j')
+    '000010': (j, 'j') }
 
-}
-
-# define registers as dictionary
-hex_nums = { '0x0': 0,
-             '0x1': 1,
-             '0x2': 2,
-             '0x3': 3,
-             '0x4': 4,
-             '0x5': 5,
-             '0x6': 6,
-             '0x7': 7,
-             '0x8': 8,
-             '0x9': 9,
-             '0xa': 10,
-             '0xb': 11,
-             '0xc': 12,
-             '0xd': 13,
-             '0xe': 14,
-             '0xf': 15,
-             'PC': 0
-}
 
 
 # first things first is read an asm file, decipher its contents to binary (homework 4),
@@ -419,53 +427,55 @@ def main():
         sim_instr.append('')
         sim_instr.append('')
         sim_instr.append('')
-        #print(lineCount /4,end = ' ')
-        # debuging
-        # if sim_instr[lineCount].type == 'r_type':
-        #     instructionFunc = r_type[sim_instr[lineCount].func][0]
-        #
-        # elif sim_instr[lineCount].type == 'i_type':
-        #     instructionFunc = i_type[sim_instr[lineCount].func][0]
-        # else:
-        #     instructionFunc = j_type[sim_instr[lineCount].func][0]
-        #
-        # instructionFunc(sim_instr[lineCount])
+
 
         lineCount += 4
-
     #"""
      # THIS is the loop for the similator. only tested infinite loop w/ jump instruction
      # pc increments correctly
-    pc = regfile.data[34]
-    print("pc= {0} reg 3 = {1}".format(pc, regfile.read(3), '08x'))
+    pc = regfile.readpc()
+    #print("pc= {0} reg 3 = {1}".format(pc, regfile.read(3), '08x'))
+    """
+    while pc <= lineCount * 4:
+        if pc % 4 == 0  :
+            #if pc == lineCount * 4:
+             #   break
+            try:
+                if sim_instr[pc].type == 'r_type':
+                    instructionFunc = r_type[sim_instr[pc].func][0]
 
-    while pc < lineCount * 4:
-        if pc % 4 == 0:
-            if sim_instr[pc].type == 'r_type':
-                instructionFunc = r_type[sim_instr[pc].func][0]
+                elif sim_instr[pc].type == 'i_type':
+                    instructionFunc = i_type[sim_instr[pc].func][0]
+                else:
+                    instructionFunc = j_type[sim_instr[pc].func][0]
 
-            elif sim_instr[pc].type == 'i_type':
-                instructionFunc = i_type[sim_instr[pc].func][0]
-            else:
-                instructionFunc = j_type[sim_instr[pc].func][0]
+            except:
+                print ("end of instr")
+                break
+        instructionFunc(sim_instr[pc])
+        pc = regfile.updatepc()
+        pc = regfile.readpc()
 
-            instructionFunc(sim_instr[pc])
-            pc = regfile.read_and_updatepc()
-        #regfile.printRegs()
-        print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
-        time.sleep(1)
-    #"""
+        regfile.printRegs()
+        #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
+        #time.sleep(1)
+    """
 
 
     # use class to send that index of addr and set information
     MemStart = 8192 #'0x2000'
-    mem_Value = [] #mem(MemStart,0,0,0,0)
-
     for i in range( 1025): #this could work for each instruction instr_list: -> loop 1025
-        addr = str(hex(MemStart))
-        mem_Value.append(mem(addr, 0, 0, 0, 0))
+        addr = MemStart
+        memory.append(mem(addr, 0, 0, 0, 0))
         MemStart += 4   # increment addr by 4, each will have access to every bit.
 
+
+    # memory testing
+    # tmpA = 8208
+    # memory[0].writeMem()
+    # print(memory[0].printMem() )
+
+    #printMem())
 
 #take as string..
     # look at last 3 bits / 4 know index number
