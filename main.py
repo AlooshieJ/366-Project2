@@ -91,8 +91,8 @@ class mem():
     #def loadMem(self,addr):
         #return self.data
 
-def find_memory_address(address): # dont need this, we have a way of incrementing pc
 
+def find_memory_address(address): # dont need this, we have a way of incrementing pc
 
     if address[0:7] == '0x3000':
         # not done might not need
@@ -304,29 +304,29 @@ r_type = {
     '100000': (add, 'add'),
     '100101': (OR, 'or'),
     '011000': (mult, 'mult'),
-    '011001': (multu,'multu'),
-    '010000': (mfhi,'mfhi'),
-    '010010': (mflo,'mflo'),
-    '100110': (xor,'xor'),
-    '000000': (sll,'sll'),
-    '000010': (srl,'srl'),
-    '101011': (sltu,'sltu'),
-    '100100': (AND,'and'),
-    '101010': (slt,'slt')
+    '011001': (multu, 'multu'),
+    '010000': (mfhi, 'mfhi'),
+    '010010': (mflo, 'mflo'),
+    '100110': (xor, 'xor'),
+    '000000': (sll, 'sll'),
+    '000010': (srl, 'srl'),
+    '101011': (sltu, 'sltu'),
+    '100100': (AND, 'and'),
+    '101010': (slt, 'slt')
 }
 i_type = {
     # i-types:
     '001000': (addi, 'addi'),
     '001101': (ori, 'ori'),
     '100011': (lw, 'lw'),
-    '001110': (xori,'xori'),
-    '001111': (lui,'lui'),
-    '101000': (sb,'sb'),
-    '101011': (sw,'sw'),
-    '100000': (lb,'lb'),
-    '000100': (beq,'beq'),
-    '000101': (bne,'bne'),
-    '001001': (addiu,'addiu')
+    '001110': (xori, 'xori'),
+    '001111': (lui, 'lui'),
+    '101000': (sb, 'sb'),
+    '101011': (sw, 'sw'),
+    '100000': (lb, 'lb'),
+    '000100': (beq, 'beq'),
+    '000101': (bne, 'bne'),
+    '001001': (addiu, 'addiu')
 }
 j_type = {
     '000010': (j, 'j')
@@ -369,9 +369,6 @@ def saveJumpLabel(asm, labelIndex, labelName):
             asm[lineCount] = line[line.index(':') +1 :]
         lineCount += 1
 
-
-
-# other thoughts:
 
 def main():
     # input asm file
