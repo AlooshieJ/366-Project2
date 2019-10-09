@@ -227,7 +227,8 @@ def mult(instr):
     e = int(c[32:64], 2)
     regfile.writeHi(d)
     regfile.writeLo(e)
-    
+
+
 def slt(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
@@ -236,7 +237,8 @@ def slt(instr):
         regfile.write(instr.rd, 1)
     else:
         regfile.write(instr.rd, 0)
-    
+
+
 def xor(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs) 
@@ -251,20 +253,24 @@ def multu(instr):
     c,  d = divmod((a * b), (2^32))
     regfile.writeHi(c)
     regfile.writeLo(d)
-   
+
+
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
     regfile.write(instr.rd, a & b)
 
+
 def mfhi(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     regfile.movefromHi(instr.rd)
 
+
 def mflo (instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     regfile.movefromLo(instr.rd)
+
 
 def sll(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
@@ -275,8 +281,10 @@ def sll(instr):
     else:
         regfile.write(instr.rd, a<<b)
 
+
 def srl(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+
 
 def sltu(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -289,8 +297,11 @@ def addi(instr):
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a + instr.imm)
 
+
 def addiu(instr):
-    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
+    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm))
+    a = regfile.read(instr.rs)
+    regfile.write(instr.rt, a + twosComp(instr.imm))
 
 def ori(instr):
     #print(instr.binary_S + '\n')
@@ -299,40 +310,54 @@ def ori(instr):
     a = regfile.read(instr.rs) 
     regfile.write(instr.rt, a | instr.imm)
 
+
 def xori(instr):
     print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr.imm))
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a ^ instr.imm)
 
+
 def lui(instr):
-    print("{0} ${1}, {2}").format(instr.name,instr.rt,instr.imm)
+    print("{0} ${1}, {2}").format(instr.name, instr.rt, instr.imm)
+    a = regfile.read(instr.imm)
+    a = bindigits(a, 32)
+    b = a[16:32]
+    a[16:32] = a[0:15]
+    a[0:15] = b
+    regfile.write(instr.rt, int(a, 2))
 
 def lw(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
+
 def sw(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
+
 
 def lb(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
+
 def sb(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
+
 
 def beq(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
+
 def bne(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
+
 # jump
-def j (instr):
+def j(instr):
     print(instr.name + str(" ") + str(instr.imm))
     regfile.write(34, instr.imm)
 
@@ -440,7 +465,7 @@ def main():
             instr_list.append(line) # creates an array of every instruction in the file
 
     # writes binary of assembly code to file
-    asm_to_bin(instr_list,labelName, labelIndex)
+    asm_to_bin(instr_list, labelName, labelIndex)
     #print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
 
     """"
