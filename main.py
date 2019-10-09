@@ -1,7 +1,6 @@
 # lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
 from ASMtoBIN import *
-from tabulate import tabulate
 import time
 import os
 
@@ -10,6 +9,11 @@ import os
 #added for - registers
 def twosComp(number):
         return 4294967296 + int(number)
+
+
+def bindigits(n, bits):
+    s = bin(n & int("1"*bits, 2))[2:]
+    return ("{0:0>%s}" % bits).format(s)
 
 
 # lets create a list of indexes we dont want for the registers
@@ -146,11 +150,11 @@ class Instruction():
 
         self.opcode = self.binary_S[0:6] # check first 6 bits to determine type.
 
-
         if self.opcode == '000000':  # all r_types have this opcode, and function is the last 6 bits
             self.func = self.binary_S[26:32]
             self.type = 'r_type'
             self.name = r_type[self.func][1]
+
         elif(self.opcode == '000010'):  # check for j_ type
             self.func = self.opcode
             self.type = 'j_type'
@@ -162,7 +166,7 @@ class Instruction():
             else:
                 self.imm = int(self.binary_S[6:], 2)
 
-        else: # i type
+        else:  # i type
             self.func = self.opcode
             self.type = 'i_type'
             self.name = i_type[self.func][1]
@@ -185,10 +189,7 @@ class Instruction():
         print(self.binary_S)
 
 
-
-
-
-# functions( instruc) these should do the actual instructions
+# functions(instr) these should do the actual instructions
 # currently just outputting to check if they work.
 # r- types
 def add (instr):
@@ -212,6 +213,16 @@ def mult(instr):
     # mult rs, rt
     #print(instr.binary_S)
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+
+    multiply = a * b
+    c = bindigits(multiply, 64)
+    print(str("C[0:31] = ") + str(c[0:31]) + str(" C[32:64] = ") + str(c[32:64]))
+    d = int(c[0:31], 2)
+    e = int(c[32:64], 2)
+    regfile.writeHi(d)
+    regfile.writeLo(e)
     
 def slt(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -319,9 +330,25 @@ def bne(instr):
 # jump
 def j (instr):
     print(instr.name + str(" ") + str(instr.imm))
-    regfile.write(34,instr.imm)
+    regfile.write(34, instr.imm)
 
 
+# special instruction
+def spec(instr):
+    # mult then xor
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+
+    multiply = a * b
+    multiply = bin(multiply)
+
+    regfile.writeHi(int(multiply[0:31]))
+    regfile.writeLo(int(multiply[32:64]))
+
+    c = regfile.read(33)
+    d = regfile.read(32)
+
+    regfile.write(instr.rd, c ^ d)
 
 
 # python directory, like array, but uses "key" to instead of indices.
@@ -435,7 +462,7 @@ def main():
      # pc increments correctly
     pc = regfile.readpc()
     #print("pc= {0} reg 3 = {1}".format(pc, regfile.read(3), '08x'))
-    """
+
     while pc <= lineCount * 4:
         if pc % 4 == 0  :
             #if pc == lineCount * 4:
@@ -459,7 +486,7 @@ def main():
         regfile.printRegs()
         #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
         #time.sleep(1)
-    """
+
 
 
     # use class to send that index of addr and set information

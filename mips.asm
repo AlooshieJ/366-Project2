@@ -1,3 +1,5 @@
-addi $3,$0,2
-addi $2,$0,-203
-sll $4,$2,2
+addi $5,$0,2
+addi $6,$0,10
+mult $5,$6
+mfhi $7
+mflo $8
