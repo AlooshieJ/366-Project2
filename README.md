@@ -3,7 +3,7 @@
 
 Currently keeping track of working instructions:
 addi, or, ori, slt, xor, xori , and,
-j
+j, bne , beq, lb,sb
 
 close:
 sll works but gives an extra byte of information

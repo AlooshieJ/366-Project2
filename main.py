@@ -10,13 +10,20 @@ import os
 def twosComp(number):
         return 4294967296 + int(number)
 
-def sign_extend(value, bits):
-    sign_bit = 1 << (bits - 1)
-    return (value & (sign_bit - 1)) - (value & sign_bit)
-
 def bindigits(n, bits):
     s = bin(n & int("1"*bits, 2))[2:]
     return ("{0:0>%s}" % bits).format(s)
+
+
+def sign_extend(value, bits):
+    mask = 0xffffff00
+    bindigits(value,32)
+    value = mask ^ value
+    print("{:08x} ? {:08x}, value: {:08x} ".format(mask, bits, value))
+    #
+    #sign_bit =  1 << (bits - 1)
+    #return (value & (sign_bit - 1)) - (value & sign_bit)
+    return value
 
 
 # lets create a list of indexes we dont want for the registers
@@ -42,12 +49,17 @@ class registerfile():
             else:
                 self.data[writeindex] = writeback_value
     #added this for storing...
-    def writeSEXT(self, writeindex, writeback_value):
+
+    def writeSEXT(self, writeindex, writeback_value):  # write w/ signextend
         if(writeindex != 0):
-            if writeback_value < 0:
-                self.data[writeindex] = twosComp(writeback_value)
+            tmp = hex(writeback_value)[2:]
+
+            if writeback_value > 0:
+                self.data[writeback_value] = int(tmp,16)
             else:
-                self.data[writeindex] = writeback_value
+                print("writing:" ,(tmp) ,"to REG:",writeindex)
+                self.data[writeindex] = sign_extend(int(tmp,16),32)
+
 
     def writeHi(self, writeback_value):
         self.data[33] = writeback_value
@@ -73,15 +85,15 @@ class registerfile():
        #print("Reg:{0} = 0x{1}".format('pc', format(self.readpc()),'08x' ) )
         #table =[[]]
         for i in range(35):
-            if i == 0:
-                pass
+            if i %10 == 0:
+                print('\n',end='')
             hex_tmp = format(self.read(i)  ,'08x')
-            print("Reg:{0} = 0x{1}".format(i, hex_tmp))
+            print("{0} = 0x{1}".format(i, hex_tmp) ,end=" ")
             #table.append([hex_tmp])
 
-
+        print('\n')
         #print(tabulate(table, showindex="always"))
-        time.sleep(1)
+        time.sleep(.1)
 
 
         # time.sleep(10)
@@ -103,11 +115,11 @@ class mem():
 
 
     def printMem(self ):    # b3 = msb , b0 = lsb
-        print(hex(self.addr),end="  ")
-        print("{0:02x}".format(self.b3),end="")
-        print("{0:02x}".format(self.b2),end="")
-        print("{0:02x}".format(self.b1),end="")
-        print("{0:02x}".format(self.b0),end=" ")
+        print(hex(self.addr), end="  ")
+        print("{0:02x}".format(self.b3), end="")
+        print("{0:02x}".format(self.b2), end="")
+        print("{0:02x}".format(self.b1), end="")
+        print("{0:02x}".format(self.b0))
 
         #print(hex(self.addr) + str(" ") + b3 + b2+ b1+ b0 + str(" | ")) #, end=" ")
 
@@ -355,18 +367,6 @@ def sw(instr):
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 
-   # # memory testing
-    # tmpA = int('0x2000',16)
-    # base = int('0x2000',16)
-    #
-    # # o =  tmpA - base
-    # # print(int(o), hex(o) )
-    # # o = int(o / 4)
-    # # remain = o % 4
-    # # print(o , remain)
-    # memory[0].writeMem(0x2000,20 )
-    # print(memory[0].b0,memory[0].b1,memory[0].b2,memory[0].b3)
-
 
 def lb(instr):  # lb rt, offset(rs)
     #print(instr.binary_S + '\n')
@@ -376,7 +376,7 @@ def lb(instr):  # lb rt, offset(rs)
     index = instr.rs + instr.imm - int('0x2000',16)
     address = index // 4
     offset = index %4
-    print("store index: ", index, "addr: ", address, "offset: ", offset)
+    #print("store index: ", index, "addr: ", address, "offset: ", offset)
 
     if offset == 0:
         #print("addr + 0")
@@ -394,8 +394,11 @@ def lb(instr):  # lb rt, offset(rs)
         #print("addr + 3")
         value = memory[address].b3
 
-    print(sign_extend(value,32))
-    regfile.write(instr.rt,sign_extend(value,32) )
+   # print(sign_extend(value,32))
+    if(value <0):
+         regfile.writeSEXT(instr.rt,value )
+    else:
+        regfile.write(instr.rt,value)
 
 
 
@@ -403,8 +406,9 @@ def lb(instr):  # lb rt, offset(rs)
 def sb(instr):      # b0 = msb b3 = lsb
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
-
-    index = instr.rs + instr.imm - int('0x2000', 16)
+    tmprs = regfile.read(instr.rs)
+    index = abs(tmprs + instr.imm  - int('0x2000', 16) )
+    print("|{} + {} - {} |".format( tmprs, instr.imm, int('0x2000', 16) ))
     address = index // 4
     offset = index % 4
 
@@ -412,7 +416,7 @@ def sb(instr):      # b0 = msb b3 = lsb
     value = bindigits(value,32)
     #print(value[:2],value[2:4],value[4:6],value[6:8])
     value = int(value[-8:],2)
-    #print("index: ", index, "addr: ", address, "offset: ", offset, "value:",value)
+    print("index: ", index, "addr: ", address, "offset: ", offset, "value:",value)
 
     if offset == 0:
         #print("addr + 0")
@@ -422,7 +426,7 @@ def sb(instr):      # b0 = msb b3 = lsb
         #print("addr + 1")
         memory[address].b1 = value
 
-    elif offset ==2:
+    elif offset == 2:
         #print("addr + 2")
         memory[address].b2 = value
 
@@ -430,17 +434,43 @@ def sb(instr):      # b0 = msb b3 = lsb
         #print("addr + 3")
         memory[address].b3 = value
 
-    #memory[address].printMem()
+    memory[address].printMem()
 
 def beq(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    dist = regfile.readpc()
+    tmp = instr.imm << 2
+    dist += tmp
+    if a == b:
+        regfile.write(34,dist)
+    else:
+        pass # note: not incrementing PC because doing that in the while loop in main
 
 
 def bne(instr):
     #print(instr.binary_S + '\n')
-    print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
+    print(str(instr.name) + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    dist = regfile.readpc()
 
+    print("dist readPC:",dist, "imm",instr.imm)
+    tmp = instr.imm << 2
+    dist += tmp
+
+   #
+   # # dist  = dist //4
+   #  rem = dist %4
+   #  print("dist:",dist)
+   #  print('remainder', rem)
+
+    if a != b:
+        regfile.write(34, dist)
+    else:
+        pass
 
 # jump
 def j(instr):
@@ -608,25 +638,10 @@ def main():
         pc = regfile.updatepc()
         pc = regfile.readpc()
 
-        #regfile.printRegs()
+        regfile.printRegs()
         #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
         #time.sleep(1)
 
-
-
-    # use class to send that index of addr and set information
-
-    # # memory testing
-    # tmpA = int('0x2000',16)
-    # base = int('0x2000',16)
-    #
-    # # o =  tmpA - base
-    # # print(int(o), hex(o) )
-    # # o = int(o / 4)
-    # # remain = o % 4
-    # # print(o , remain)
-    # memory[0].writeMem(0x2000,20 )
-    # print(memory[0].b0,memory[0].b1,memory[0].b2,memory[0].b3)
 
 
 
@@ -635,7 +650,7 @@ def main():
 
     l = 0
     print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    for row in memory[:3]:
+    for row in memory[:10]:
         #print("address:  ",row.addr)
         #tmp = row.addr - int(0x2000,16)
         if row.addr % (4*8) == 0:
@@ -645,7 +660,7 @@ def main():
         l += 1
         row.printMem()
 
-    print(" reg 3 = 0x{0}, reg 4 = {1}".format(format(regfile.read(3), '08x'),format(regfile.read(4), '08x') ))
+    #print(" reg 3 = 0x{0}, reg 4 = 0x{1}".format(format(regfile.read(3), '08x'),format(regfile.read(4), '08x') ))
 
     # the old way to change memory.
     # mem_Value[100].printMem()

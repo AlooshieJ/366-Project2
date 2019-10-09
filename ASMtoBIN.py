@@ -76,9 +76,12 @@ def asm_to_bin(asm, labelName, labelIndex):
             if checkbase(tmp) == 16:
                 x = int(tmp,16)
                 imm = bindigits(x,16)
+                print("x")
             else:
-                imm =  format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+                imm =  format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
+                #print("b")
 
+            #print('imm::: ',imm)
             rs = format(int(line[1]), '05b')
             rt = format(int(line[0]), '05b')
             f.write(str('001000') + str(rs) + str(rt) + str(imm) + '\n')
