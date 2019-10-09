@@ -88,23 +88,24 @@ class mem():
 
 
     def printMem(self ):    # b0 = msb , b3 = lsb
+        tmp = self.data
         b0 =format(  self.b0, '02x')
         b1 =format(  self.b1, '02x')
         b2 =format(  self.b2, '02x')
         b3 =format(  self.b3, '02x')
-        #data = str(b3 + b2 + b1 + b0 )
-        print( "{0} 0x {1} {2} {3} {4}".format(self.addr, b0,b1,b2,b3), end= " " )
+        data = str(b3 + b2 + b1 + b0 )
+        print( "{0} 0x {1:x} {2:x} {3:x} {4:x}".format(hex(self.addr), b0,b1,b2,b3), end= " " )
        # print(str(self.addr) + str("  ") + self.data, end=" ")
 
 # note, doesnt not work with negatives
     def writeMem(self, address, value):
 
-        tmp = str( format(int(value),'016b'))
+        tmp = str( format(int(value),'08x'))
         # 0|0|0|0|0|0|0|0
         # 0,1,2,3,4,5,6,7
         #-8,7,6,5,4,3,2,1
         #print(tmp)
-        #print(tmp[-2:], tmp[-4:-2], tmp[-6:-4],tmp[-8:-6] )
+        print("infunc: ",tmp[-2:], tmp[-4:-2], tmp[-6:-4],tmp[-8:-6] )
         self.b0 = tmp[-2:]
         self.b1 = tmp[-4:-2]
         self.b2 = tmp[-6:-4]
@@ -266,6 +267,13 @@ def srl(instr):
 def sltu(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
 
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+    if (a < b):
+        regfile.write(instr.rd, 1)
+    else:
+        regfile.write(instr.rd, 0)
+
 
 # i - types
 def addi(instr):
@@ -291,6 +299,7 @@ def xori(instr):
 
 def lui(instr):
     print("{0} ${1}, {2}").format(instr.name,instr.rt,instr.imm)
+    regfile.write(instr.rt)
 
 def lw(instr):
     #print(instr.binary_S + '\n')
@@ -469,13 +478,19 @@ def main():
         memory.append(mem(addr, 0, 0, 0, 0))
         MemStart += 4   # increment addr by 4, each will have access to every bit.
 
+    # # memory testing
+    # tmpA = int('0x2000',16)
+    # base = int('0x2000',16)
+    #
+    # # o =  tmpA - base
+    # # print(int(o), hex(o) )
+    # # o = int(o / 4)
+    # # remain = o % 4
+    # # print(o , remain)
+    # memory[0].writeMem(0x2000,20 )
+    # print(memory[0].b0,memory[0].b1,memory[0].b2,memory[0].b3)
 
-    # memory testing
-    # tmpA = 8208
-    # memory[0].writeMem()
-    # print(memory[0].printMem() )
 
-    #printMem())
 
 #take as string..
     # look at last 3 bits / 4 know index number
