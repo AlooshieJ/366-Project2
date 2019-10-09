@@ -3,3 +3,5 @@ addi $6,$0,10
 mult $5,$6
 mfhi $7
 mflo $8
+xor $9,$7,$8
+spec $10,$5,$6

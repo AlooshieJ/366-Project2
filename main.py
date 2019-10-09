@@ -166,6 +166,11 @@ class Instruction():
             else:
                 self.imm = int(self.binary_S[6:], 2)
 
+        elif(self.opcode == '111111'):  # special instruction
+            self.func = self.opcode
+            self.type = 'r_type'
+            self.name = r_type[self.opcode][1]
+
         else:  # i type
             self.func = self.opcode
             self.type = 'i_type'
@@ -218,7 +223,6 @@ def mult(instr):
 
     multiply = a * b
     c = bindigits(multiply, 64)
-    print(str("C[0:31] = ") + str(c[0:31]) + str(" C[32:64] = ") + str(c[32:64]))
     d = int(c[0:31], 2)
     e = int(c[32:64], 2)
     regfile.writeHi(d)
@@ -340,13 +344,14 @@ def spec(instr):
     b = regfile.read(instr.rt)
 
     multiply = a * b
-    multiply = bin(multiply)
+    c = bindigits(multiply, 64)
+    d = int(c[0:31], 2)
+    e = int(c[32:64], 2)
+    regfile.writeHi(d)
+    regfile.writeLo(e)
 
-    regfile.writeHi(int(multiply[0:31]))
-    regfile.writeLo(int(multiply[32:64]))
-
-    c = regfile.read(33)
-    d = regfile.read(32)
+    c = regfile.read(33)  # read hi
+    d = regfile.read(32)  # read lo
 
     regfile.write(instr.rd, c ^ d)
 
@@ -368,7 +373,8 @@ r_type = {
     '000010': (srl, 'srl'),
     '101011': (sltu, 'sltu'),
     '100100': (AND, 'and'),
-    '101010': (slt, 'slt')
+    '101010': (slt, 'slt'),
+    '111111': (spec, 'spec')  # special instruction
 }
 i_type = {
     # i-types:
@@ -385,8 +391,7 @@ i_type = {
     '001001': (addiu, 'addiu')
 }
 j_type = {
-    '000010': (j, 'j') }
-
+    '000010': (j, 'j')}
 
 
 # first things first is read an asm file, decipher its contents to binary (homework 4),
@@ -410,7 +415,7 @@ def main():
     h = open("mips.asm",'r')
     binF = open("toBin.txt",'r') # binary file
     asm = h.readlines()
-    instr_list = [] # what we read from file
+    instr_list = []  # what we read from file
     labelName = []
     labelIndex = []
     lineCount = 0
@@ -424,9 +429,9 @@ def main():
     print(labelName, labelIndex)
     for line in asm:
         line = line.replace('$', "")
-        line = line.replace('\n','')
-        line = line.replace('#','')
-        line = line.replace('zero','0')
+        line = line.replace('\n', '')
+        line = line.replace('#', '')
+        line = line.replace('zero', '0')
 
         if line.find(':') != -1 :
             pass
