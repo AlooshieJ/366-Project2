@@ -10,6 +10,9 @@ import os
 def twosComp(number):
         return 4294967296 + int(number)
 
+def sign_extend(value, bits):
+    sign_bit = 1 << (bits - 1)
+    return (value & (sign_bit - 1)) - (value & sign_bit)
 
 def bindigits(n, bits):
     s = bin(n & int("1"*bits, 2))[2:]
@@ -33,6 +36,13 @@ class registerfile():
         return self.data[readindex]
 
     def write(self, writeindex, writeback_value):
+        if(writeindex != 0):
+            if writeback_value < 0:
+                self.data[writeindex] = twosComp(writeback_value)
+            else:
+                self.data[writeindex] = writeback_value
+    #added this for storing...
+    def writeSEXT(self, writeindex, writeback_value):
         if(writeindex != 0):
             if writeback_value < 0:
                 self.data[writeindex] = twosComp(writeback_value)
@@ -80,26 +90,26 @@ class registerfile():
 memory = []  # mem(MemStart,0,0,0,0)
 regfile = registerfile()
 
+# msb = b3 lsb = b0
 class mem():
-    def __init__(self, address, b0, b1, b2, b3): # this might be backwards... idk
+    def __init__(self, address, b3, b2, b1, b0):
 
         self.addr = address
-        self.b0 = b0  # addr + 1
-        self.b1 = b1  # addr + 2
-        self.b2 = b2  # addr + 3
-        self.b3 = b3  # addr + 4
+        self.b0 = b0  # addr + 0
+        self.b1 = b1  # addr + 1
+        self.b2 = b2  # addr + 2
+        self.b3 = b3  # addr + 3
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
 
-    def printMem(self ):    # b0 = msb , b3 = lsb
-        tmp = self.data
-        b0 =format(  self.b0, '02x')
-        b1 =format(  self.b1, '02x')
-        b2 =format(  self.b2, '02x')
-        b3 =format(  self.b3, '02x')
-        data = str(b3 + b2 + b1 + b0 )
-        print( "{0} 0x {1:x} {2:x} {3:x} {4:x}".format(hex(self.addr), b0,b1,b2,b3), end= " " )
-       # print(str(self.addr) + str("  ") + self.data, end=" ")
+    def printMem(self ):    # b3 = msb , b0 = lsb
+        print(hex(self.addr),end="  ")
+        print("{0:02x}".format(self.b3),end="")
+        print("{0:02x}".format(self.b2),end="")
+        print("{0:02x}".format(self.b1),end="")
+        print("{0:02x}".format(self.b0),end=" ")
+
+        #print(hex(self.addr) + str(" ") + b3 + b2+ b1+ b0 + str(" | ")) #, end=" ")
 
 # note, doesnt not work with negatives
     def writeMem(self, address, value):
@@ -109,7 +119,7 @@ class mem():
         # 0,1,2,3,4,5,6,7
         #-8,7,6,5,4,3,2,1
         #print(tmp)
-        print("infunc: ",tmp[-2:], tmp[-4:-2], tmp[-6:-4],tmp[-8:-6] )
+        #print("infunc: ",tmp[-2:], tmp[-4:-2], tmp[-6:-4],tmp[-8:-6] )
         self.b0 = tmp[-2:]
         self.b1 = tmp[-4:-2]
         self.b2 = tmp[-6:-4]
@@ -326,7 +336,7 @@ def xori(instr):
 
 
 def lui(instr):
-    print("{0} ${1}, {2}").format(instr.name, instr.rt, instr.imm)
+    print("{0} ${1}, {2}".format(instr.name, instr.rt, instr.imm) )
     a = regfile.read(instr.imm)
     a = bindigits(a, 32)
     b = a[16:32]
@@ -345,15 +355,82 @@ def sw(instr):
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
 
-def lb(instr):
+   # # memory testing
+    # tmpA = int('0x2000',16)
+    # base = int('0x2000',16)
+    #
+    # # o =  tmpA - base
+    # # print(int(o), hex(o) )
+    # # o = int(o / 4)
+    # # remain = o % 4
+    # # print(o , remain)
+    # memory[0].writeMem(0x2000,20 )
+    # print(memory[0].b0,memory[0].b1,memory[0].b2,memory[0].b3)
+
+
+def lb(instr):  # lb rt, offset(rs)
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
+    #loadto = regfile.read(instr.rt)
+    index = instr.rs + instr.imm - int('0x2000',16)
+    address = index // 4
+    offset = index %4
+    print("store index: ", index, "addr: ", address, "offset: ", offset)
 
-def sb(instr):
+    if offset == 0:
+        #print("addr + 0")
+        value = memory[address].b0
+
+    elif offset == 1:
+        #print("addr + 1")
+        value = memory[address].b1
+
+    elif offset ==2:
+        #print("addr + 2")
+        value = memory[address].b2
+
+    elif offset == 3:
+        #print("addr + 3")
+        value = memory[address].b3
+
+    print(sign_extend(value,32))
+    regfile.write(instr.rt,sign_extend(value,32) )
+
+
+
+
+def sb(instr):      # b0 = msb b3 = lsb
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
+    index = instr.rs + instr.imm - int('0x2000', 16)
+    address = index // 4
+    offset = index % 4
+
+    value = regfile.read(instr.rt)
+    value = bindigits(value,32)
+    #print(value[:2],value[2:4],value[4:6],value[6:8])
+    value = int(value[-8:],2)
+    #print("index: ", index, "addr: ", address, "offset: ", offset, "value:",value)
+
+    if offset == 0:
+        #print("addr + 0")
+        memory[address].b0 = value
+
+    elif offset == 1:
+        #print("addr + 1")
+        memory[address].b1 = value
+
+    elif offset ==2:
+        #print("addr + 2")
+        memory[address].b2 = value
+
+    elif offset == 3:
+        #print("addr + 3")
+        memory[address].b3 = value
+
+    #memory[address].printMem()
 
 def beq(instr):
     #print(instr.binary_S + '\n')
@@ -453,8 +530,16 @@ def main():
     labelName = []
     labelIndex = []
     lineCount = 0
+    MemStart = 8192  # '0x2000'
 
-#   saving label and their index.
+
+
+    for i in range(1025):  # this could work for each instruction instr_list: -> loop 1025
+        addr = MemStart
+        memory.append(mem(addr, 0, 0, 0, 0))
+        MemStart += 4  # increment addr by 4, each will have access to every bit.
+
+    #   saving label and their index.
     for i in range (asm.count('\n')):
         asm.remove('\n')
 
@@ -487,7 +572,7 @@ def main():
     for binary in binF.readlines():
         binary = binary.replace('\n', '')
         to_hex = hex(int(binary, 2))
-        print(to_hex)
+        #print(to_hex)
         x = Instruction(to_hex)
         sim_instr.append(x)
         sim_instr.append('')
@@ -496,6 +581,7 @@ def main():
 
 
         lineCount += 4
+
     #"""
      # THIS is the loop for the similator. only tested infinite loop w/ jump instruction
      # pc increments correctly
@@ -522,18 +608,13 @@ def main():
         pc = regfile.updatepc()
         pc = regfile.readpc()
 
-        regfile.printRegs()
+        #regfile.printRegs()
         #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
         #time.sleep(1)
 
 
 
     # use class to send that index of addr and set information
-    MemStart = 8192 #'0x2000'
-    for i in range( 1025): #this could work for each instruction instr_list: -> loop 1025
-        addr = MemStart
-        memory.append(mem(addr, 0, 0, 0, 0))
-        MemStart += 4   # increment addr by 4, each will have access to every bit.
 
     # # memory testing
     # tmpA = int('0x2000',16)
@@ -552,16 +633,19 @@ def main():
 #take as string..
     # look at last 3 bits / 4 know index number
 
-    # l = 0
-    # print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    # for row in mem_Value:
-    #     if int(row.addr, 16) % (4*8) == 0:
-    #          print( '\n', end="")
-    #          print(str(row.addr) + '|', end=" ")
-    #     # new way to write to memory. kinda slow because array O(N)
-    #     row.writeMem(row.addr, l + 1)
-    #     l += 1
-    #     row.printMem()
+    l = 0
+    print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
+    for row in memory[:3]:
+        #print("address:  ",row.addr)
+        #tmp = row.addr - int(0x2000,16)
+        if row.addr % (4*8) == 0:
+             print( '\n', end="")
+        # new way to write to memory. kinda slow because array O(N)
+        #row.writeMem(row.addr, l + 1)
+        l += 1
+        row.printMem()
+
+    print(" reg 3 = 0x{0}, reg 4 = {1}".format(format(regfile.read(3), '08x'),format(regfile.read(4), '08x') ))
 
     # the old way to change memory.
     # mem_Value[100].printMem()

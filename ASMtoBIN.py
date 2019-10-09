@@ -201,7 +201,7 @@ def asm_to_bin(asm, labelName, labelIndex):
             line = line.replace(")", "")
             line = line.replace("(", ",")
             line = line.split(",")
-            tmp = str(line[2])
+            tmp = str(line[1])
             if checkbase(tmp) == 16:
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
