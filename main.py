@@ -1,7 +1,6 @@
 # lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
 from ASMtoBIN import *
-from tabulate import tabulate
 import time
 import os
 
@@ -10,6 +9,11 @@ import os
 #added for - registers
 def twosComp(number):
         return 4294967296 + int(number)
+
+
+def bindigits(n, bits):
+    s = bin(n & int("1"*bits, 2))[2:]
+    return ("{0:0>%s}" % bits).format(s)
 
 
 # lets create a list of indexes we dont want for the registers
@@ -147,11 +151,11 @@ class Instruction():
 
         self.opcode = self.binary_S[0:6] # check first 6 bits to determine type.
 
-
         if self.opcode == '000000':  # all r_types have this opcode, and function is the last 6 bits
             self.func = self.binary_S[26:32]
             self.type = 'r_type'
             self.name = r_type[self.func][1]
+
         elif(self.opcode == '000010'):  # check for j_ type
             self.func = self.opcode
             self.type = 'j_type'
@@ -163,7 +167,12 @@ class Instruction():
             else:
                 self.imm = int(self.binary_S[6:], 2)
 
-        else: # i type
+        elif(self.opcode == '111111'):  # special instruction
+            self.func = self.opcode
+            self.type = 'r_type'
+            self.name = r_type[self.opcode][1]
+
+        else:  # i type
             self.func = self.opcode
             self.type = 'i_type'
             self.name = i_type[self.func][1]
@@ -186,10 +195,7 @@ class Instruction():
         print(self.binary_S)
 
 
-
-
-
-# functions( instruc) these should do the actual instructions
+# functions(instr) these should do the actual instructions
 # currently just outputting to check if they work.
 # r- types
 def add (instr):
@@ -213,7 +219,17 @@ def mult(instr):
     # mult rs, rt
     #print(instr.binary_S)
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
-    
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+
+    multiply = a * b
+    c = bindigits(multiply, 64)
+    d = int(c[0:31], 2)
+    e = int(c[32:64], 2)
+    regfile.writeHi(d)
+    regfile.writeLo(e)
+
+
 def slt(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
@@ -222,7 +238,8 @@ def slt(instr):
         regfile.write(instr.rd, 1)
     else:
         regfile.write(instr.rd, 0)
-    
+
+
 def xor(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs) 
@@ -237,20 +254,24 @@ def multu(instr):
     c,  d = divmod((a * b), (2^32))
     regfile.writeHi(c)
     regfile.writeLo(d)
-   
+
+
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
     a = regfile.read(instr.rs)
     b = regfile.read(instr.rt)
     regfile.write(instr.rd, a & b)
 
+
 def mfhi(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     regfile.movefromHi(instr.rd)
 
+
 def mflo (instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     regfile.movefromLo(instr.rd)
+
 
 def sll(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
@@ -261,8 +282,10 @@ def sll(instr):
     else:
         regfile.write(instr.rd, a<<b)
 
+
 def srl(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+
 
 def sltu(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -282,8 +305,11 @@ def addi(instr):
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a + instr.imm)
 
+
 def addiu(instr):
-    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm) )
+    print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm))
+    a = regfile.read(instr.rs)
+    regfile.write(instr.rt, a + twosComp(instr.imm))
 
 def ori(instr):
     #print(instr.binary_S + '\n')
@@ -292,45 +318,76 @@ def ori(instr):
     a = regfile.read(instr.rs) 
     regfile.write(instr.rt, a | instr.imm)
 
+
 def xori(instr):
     print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr.imm))
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a ^ instr.imm)
 
+
 def lui(instr):
-    print("{0} ${1}, {2}").format(instr.name,instr.rt,instr.imm)
-    regfile.write(instr.rt)
+    print("{0} ${1}, {2}").format(instr.name, instr.rt, instr.imm)
+    a = regfile.read(instr.imm)
+    a = bindigits(a, 32)
+    b = a[16:32]
+    a[16:32] = a[0:15]
+    a[0:15] = b
+    regfile.write(instr.rt, int(a, 2))
+
 
 def lw(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
+
 def sw(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
+
 
 def lb(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
+
 def sb(instr):
     #print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
+
 
 def beq(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
+
 def bne(instr):
     #print(instr.binary_S + '\n')
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
 
+
 # jump
-def j (instr):
+def j(instr):
     print(instr.name + str(" ") + str(instr.imm))
-    regfile.write(34,instr.imm)
+    regfile.write(34, instr.imm)
 
 
+# special instruction
+def spec(instr):
+    # mult then xor
+    a = regfile.read(instr.rs)
+    b = regfile.read(instr.rt)
+
+    multiply = a * b
+    c = bindigits(multiply, 64)
+    d = int(c[0:31], 2)
+    e = int(c[32:64], 2)
+    regfile.writeHi(d)
+    regfile.writeLo(e)
+
+    c = regfile.read(33)  # read hi
+    d = regfile.read(32)  # read lo
+
+    regfile.write(instr.rd, c ^ d)
 
 
 # python directory, like array, but uses "key" to instead of indices.
@@ -350,7 +407,8 @@ r_type = {
     '000010': (srl, 'srl'),
     '101011': (sltu, 'sltu'),
     '100100': (AND, 'and'),
-    '101010': (slt, 'slt')
+    '101010': (slt, 'slt'),
+    '111111': (spec, 'spec')  # special instruction
 }
 i_type = {
     # i-types:
@@ -367,8 +425,7 @@ i_type = {
     '001001': (addiu, 'addiu')
 }
 j_type = {
-    '000010': (j, 'j') }
-
+    '000010': (j, 'j')}
 
 
 # first things first is read an asm file, decipher its contents to binary (homework 4),
@@ -392,7 +449,7 @@ def main():
     h = open("mips.asm",'r')
     binF = open("toBin.txt",'r') # binary file
     asm = h.readlines()
-    instr_list = [] # what we read from file
+    instr_list = []  # what we read from file
     labelName = []
     labelIndex = []
     lineCount = 0
@@ -406,9 +463,9 @@ def main():
     print(labelName, labelIndex)
     for line in asm:
         line = line.replace('$', "")
-        line = line.replace('\n','')
-        line = line.replace('#','')
-        line = line.replace('zero','0')
+        line = line.replace('\n', '')
+        line = line.replace('#', '')
+        line = line.replace('zero', '0')
 
         if line.find(':') != -1 :
             pass
@@ -417,7 +474,7 @@ def main():
             instr_list.append(line) # creates an array of every instruction in the file
 
     # writes binary of assembly code to file
-    asm_to_bin(instr_list,labelName, labelIndex)
+    asm_to_bin(instr_list, labelName, labelIndex)
     #print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
 
     """"
@@ -444,7 +501,7 @@ def main():
      # pc increments correctly
     pc = regfile.readpc()
     #print("pc= {0} reg 3 = {1}".format(pc, regfile.read(3), '08x'))
-    """
+
     while pc <= lineCount * 4:
         if pc % 4 == 0  :
             #if pc == lineCount * 4:
@@ -468,7 +525,7 @@ def main():
         regfile.printRegs()
         #print("pc= {0} reg 3 = 0x{1}".format(pc,format(regfile.read(3), '08x') ))
         #time.sleep(1)
-    """
+
 
 
     # use class to send that index of addr and set information
