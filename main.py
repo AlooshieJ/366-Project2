@@ -715,9 +715,10 @@ def lui(instr):
     print("{0} ${1}, {2}".format(instr.name, instr.rt, instr.imm))
     a = instr.imm
     a = bin_digits(a, 32)
-    b = a[16:32]
+    lsb = a[16:32]
     a[16:32] = a[0:15]
-    a[0:15] = b
+    a[0:15] = lsb
+    print("a", a)
     reg_file.write(instr.rt, int(a, 2))
 
 
@@ -756,11 +757,11 @@ def lb(instr):  # lb rt, offset(rs)
     # print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
-    # loadto = reg_file.read(instr.rt)
-    index = instr.rs + instr.imm - int('0x2000', 16)
+    tmpRS = reg_file.read(instr.rs)
+    index = abs( tmpRS + instr.imm - int('0x2000', 16) )
     address = index // 4
     offset = index % 4
-    # print("store index: ", index, "addr: ", address, "offset: ", offset)
+    print("load index: ", index, "addr: ", address, "offset: ", offset)
 
     if offset == 0:
         # print("addr + 0")
@@ -795,8 +796,9 @@ def sb(instr):  # b0 = msb b3 = lsb
     offset = index % 4
 
     value = reg_file.read(instr.rt)
+    print('value to store:',value)
     value = bin_digits(value, 32)
-    # print(value[:2],value[2:4],value[4:6],value[6:8])
+    print(value[:2],value[2:4],value[4:6],value[6:8])
     value = int(value[-8:], 2)
     print("index: ", index, "addr: ", address, "offset: ", offset, "value:", value)
 
@@ -830,7 +832,10 @@ def beq(instr):
     if a == b:
         reg_file.write(34, dist)
     else:
-        pass  # note: not incrementing PC because doing that in the while loop in main
+         pass
+    #     tmp + 4
+    #     reg_file.write(34, tmp)
+
 
 
 def bne(instr):
@@ -838,23 +843,21 @@ def bne(instr):
     print(str(instr.name) + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
-    dist = reg_file.read_pc()
+   # dist = reg_file.read_pc()
 
-    print("dist read_pc:", dist, "imm", instr.imm)
-    tmp = instr.imm << 2
-    dist += tmp
+    tmp = instr.imm * 4
+    dist = tmp + reg_file.read_pc()
 
-    #
-    # # dist  = dist //4
-    #  rem = dist %4
-    #  print("dist:",dist)
-    #  print('remainder', rem)
-
+    print('pc=',reg_file.read_pc(),"tmp",tmp, "dist:",dist)
+    print('a=',a,"b=",b)
     if a != b:
         reg_file.write(34, dist)
+    elif dist ==0:
+        reg_file.update_pc()
     else:
-        pass
-
+         pass
+    #     tmp += 4
+    #     reg_filereg_file.update_pc()
 
 # jump
 def j(instr):
@@ -1059,12 +1062,12 @@ def main():
         # time.sleep(1)
 
         # reg_file.print_regs()
-        # print("pc= {0} reg 3 = 0x{1}".format(pc,format(reg_file.read(3), '08x') ))
+        #print("pc= {0} reg 3 = 0x{1}".format(pc,format(reg_file.read(10), '08x') ))
         # time.sleep(1)
 
 # take as string..
     # look at last 3 bits / 4 know index number
-    """"
+
     count = 0
     print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
     for row in memory[:100]:
@@ -1081,7 +1084,7 @@ def main():
     tmp = icount + jcount + rcount
     print('DIC', DIC,"sum",tmp)
     
-    """
+
 
 if __name__ == "__main__":
     main()
