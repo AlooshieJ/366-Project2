@@ -472,11 +472,11 @@ class mem():
 
 
     def printMem(self ):    # b3 = msb , b0 = lsb
-        print(hex(self.addr), end="  ")
+        print(" ",hex(self.addr), end="  ")
         print("{0:02x}".format(self.b3), end="")
         print("{0:02x}".format(self.b2), end="")
         print("{0:02x}".format(self.b1), end="")
-        print("{0:02x}".format(self.b0))
+        print("{0:02x}".format(self.b0),end = "")
 
         #print(hex(self.addr) + str(" ") + b3 + b2+ b1+ b0 + str(" | ")) #, end=" ")
 
@@ -1088,13 +1088,13 @@ def main():
         #print("address:  ",row.addr)
         #tmp = row.addr - int(0x2000,16)
         if row.addr % (4*8) == 0:
-             print( '\n') #, end="")
+             print( '\n', end=" ")
         # new way to write to memory. kinda slow because array O(N)
         #row.writeMem(row.addr, l + 1)
         l += 1
         row.printMem()
 
-        print('DIC',DIC)
+    print('DIC',DIC)
 
     #print(" reg 3 = 0x{0}, reg 4 = 0x{1}".format(format(regfile.read(3), '08x'),format(regfile.read(4), '08x') ))
 
