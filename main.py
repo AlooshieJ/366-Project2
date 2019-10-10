@@ -464,18 +464,19 @@ class mem():
         #print(hex(self.addr) + str(" ") + b3 + b2+ b1+ b0 + str(" | ")) #, end=" ")
 
 # note, doesnt not work with negatives
-    def writeMem(self, address, value):
+    def writeWordMem(self, value):
 
         tmp = str( format(int(value),'08x'))
+
         # 0|0|0|0|0|0|0|0
         # 0,1,2,3,4,5,6,7
         #-8,7,6,5,4,3,2,1
         #print(tmp)
         #print("infunc: ",tmp[-2:], tmp[-4:-2], tmp[-6:-4],tmp[-8:-6] )
-        self.b0 = tmp[-2:]
-        self.b1 = tmp[-4:-2]
-        self.b2 = tmp[-6:-4]
-        self.b3 = tmp[-8:-6]
+        self.b0 = int( tmp[-2:],   16)
+        self.b1 = int( tmp[-4:-2], 16)
+        self.b2 = int( tmp[-6:-4], 16)
+        self.b3 = int( tmp[-8:-6], 16)
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
     #def loadMem(self,addr):
@@ -624,6 +625,13 @@ def AND(instr):
     b = regfile.read(instr.rt)
     regfile.write(instr.rd, a & b)
 
+def andi(instr):
+    print ( "{0} ${1}, ${2}, {3}".format(instr.name,instr.rt,instr.rs,instr.imm ) )
+    a = regfile.read(instr.rs)
+    b = instr.imm
+    regfile.write(instr.rt,a & b)
+
+
 
 def mfhi(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
@@ -639,15 +647,30 @@ def sll(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
     a = regfile.read( instr.rt)
     b = instr.h
+    mask = 2**32 -1
     if a < 0:
-        regfile.write(instr.rd, twos_comp(a)<< b)
+        value = (twos_comp(a)<< b) & mask
+        regfile.write(instr.rd,value )
     else:
-        regfile.write(instr.rd, a<<b)
+        regfile.write(instr.rd, (a<<b) & mask)
 
 
 def srl(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rd, instr.rt, instr.h))
+    a = regfile.read( instr.rt)
+    b = instr.h
+    mask = 2 ** 32 - 1
+    if a < 0:
+        value = (twos_comp(a)>>b ) & mask
+        regfile.write(instr.rd, value )
+    else:
 
+        regfile.write(instr.rd, (a >> b) & mask)
+        #chop off the msb when gets past
+
+
+# 64 bits... adn w/ 00000ffff for lowest 32 bits shift right 32 bits
+# then xor lo right shift should add zeros
 
 def sltu(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -672,6 +695,8 @@ def addiu(instr):
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm))
     a = regfile.read(instr.rs)
     regfile.write(instr.rt, a + twos_comp(instr.imm))
+
+
 
 def ori(instr):
     #print(instr.binary_S + '\n')
@@ -704,7 +729,29 @@ def lw(instr):
 
 def sw(instr):
     #print(instr.binary_S + '\n')
-    print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
+    print("{0} ${1}, {2}(${3})".format(instr.name, instr.rt, instr.imm, instr.rs))
+
+    value = regfile.read(instr.rt)
+    regRs = regfile.read(instr.rs)
+
+    index = abs( regRs + instr.imm - int('0x2000',16) )
+
+    address = index // 4
+    remainder = index %4
+    print("store index: ", index, "addr: ", address,"value: ",end= "")
+
+    value = bin_digits(value,32)
+    print(value)
+    value = int(value,2)
+    print(value)
+
+    if index % 4 != 0:
+        print("error")
+        exit (0) # this will cause code to end
+    else:
+        memory[address].writeWordMem(value)
+        #memory[address].printMem()
+
 
 
 
@@ -860,6 +907,7 @@ r_type = {
 i_type = {
     # i-types:
     '001000': (addi, 'addi'),
+    '001100': (andi,'andi'),
     '001101': (ori, 'ori'),
     '100011': (lw, 'lw'),
     '001110': (xori, 'xori'),
@@ -888,6 +936,10 @@ def saveJumpLabel(asm, labelIndex, labelName):
             labelName.append(line[0:line.index(':')])  # save label name from each read line into array
             labelIndex.append(lineCount)  # save label's index
             asm[lineCount] = line[line.index(':') +1 :]
+        # elif line.find("#") != -1:
+        #     asm[lineCount] = line[line.index('#')+1 :]
+
+
         lineCount += 1
 
 
@@ -916,18 +968,44 @@ def main():
     saveJumpLabel(asm,labelIndex,labelName)
 
     print(labelName, labelIndex)
+    """
     for line in asm:
+
+        if line.count('#'):
+             line = list(line)
+             line[line.index('#'):-1] = ''
+             line = ''.join(line)
+
+        if line[0] == '\n':
+            continue
+
+
         line = line.replace('$', "")
         line = line.replace('\n', '')
         line = line.replace('#', '')
         line = line.replace('zero', '0')
 
-        if line.find(':') != -1 :
-            pass
-            # asd
-        else:
-            instr_list.append(line) # creates an array of every instruction in the file
+        instr_list.append(line) # creates an array of every instruction in the file
+     """
 
+      #working file reads
+    for line in asm:
+        line = line.replace('$', "")
+        line = line.replace('\n', '')
+        #line = line.replace('#', '')
+        line = line.replace('zero', '0')
+
+        if line.find(':') != -1  :
+            pass
+        else:
+            instr_list.append(line)
+
+    #
+    # for i in instr_list:
+    #     if instr_list[i] == '':
+    #         instr_list.remove('')
+
+    print(instr_list)
     # writes binary of assembly code to file
     asm_to_bin(instr_list, labelName, labelIndex)
     #print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
