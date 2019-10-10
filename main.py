@@ -713,7 +713,7 @@ def xori(instr):
 
 def lui(instr):
     print("{0} ${1}, {2}".format(instr.name, instr.rt, instr.imm))
-    a = reg_file.read(instr.imm)
+    a = instr.imm
     a = bin_digits(a, 32)
     b = a[16:32]
     a[16:32] = a[0:15]
@@ -943,13 +943,16 @@ def saveJumpLabel(asm, label_index, label_name):
 def main():
     # input asm file
     h = open("mips.asm", 'r')
-    bin_file = open("toBin.txt", 'r')  # binary file
+    bin_file = open("toBin.txt", 'w+')  # binary file
     asm = h.readlines()
     instr_list = []  # what we read from file
     label_name = []
     label_index = []
     line_count = 0
     DIC = 0
+    rcount = 0
+    icount = 0
+    jcount = 0
     mem_start = 8192  # '0x2000'
 
     for i in range(1025):  # this could work for each instruction instr_list: -> loop 1025
@@ -997,9 +1000,8 @@ def main():
             instr_list.append(line)
 
 
-    print(instr_list)
     # writes binary of assembly code to file
-    # asm_to_bin(instr_list, labelName, labelIndex)
+    asm_to_bin(instr_list, label_name, label_index)
     # print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
 
     """"
@@ -1034,11 +1036,14 @@ def main():
             try:
                 if sim_instr[pc].type == 'r_type':
                     instr_func = r_type[sim_instr[pc].func][0]
+                    rcount += 1
 
                 elif sim_instr[pc].type == 'i_type':
                     instr_func = i_type[sim_instr[pc].func][0]
+                    icount+= 1
                 else:
                     instr_func = j_type[sim_instr[pc].func][0]
+                    jcount+= 1
 
             except:
                 print("end of instr")
@@ -1046,10 +1051,10 @@ def main():
 
         instr_func(sim_instr[pc])
         DIC += 1
-        pc = reg_file.update_pc()
+        reg_file.update_pc()
         pc = reg_file.read_pc()
 
-        # regfile.printRegs()
+        # reg_file.print_regs()
         # tmp = input("next instr?")
         # time.sleep(1)
 
@@ -1059,7 +1064,7 @@ def main():
 
 # take as string..
     # look at last 3 bits / 4 know index number
-
+    """"
     count = 0
     print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
     for row in memory[:100]:
@@ -1073,9 +1078,10 @@ def main():
         row.print_mem()
 
     reg_file.print_regs()
-
-    print('DIC', DIC)
-
+    tmp = icount + jcount + rcount
+    print('DIC', DIC,"sum",tmp)
+    
+    """
 
 if __name__ == "__main__":
     main()
