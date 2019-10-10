@@ -1,4 +1,4 @@
-lui $9, 0xFA19
-ori $9, $9, 0xE366
-
-
+addi $10, $0, 10
+top:
+addi $10, $10, -1
+bne $10, $0, top

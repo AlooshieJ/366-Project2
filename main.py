@@ -470,7 +470,7 @@ class mem:
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
 
-    def print_mem(self ):    # b3 = msb , b0 = lsb
+    def print_mem(self ):  # b3 = msb , b0 = lsb
         print(" ",hex(self.addr), end="  ")
         print("{0:02x}".format(self.b3), end="")
         print("{0:02x}".format(self.b2), end="")
@@ -620,7 +620,7 @@ def multu(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
-    c,  d = divmod((a * b), (2 ^ 32))
+    c, d = divmod((a * b), (2 ^ 32))
     reg_file.write_hi(c)
     reg_file.write_lo(d)
     reg_file.update_pc()
@@ -854,9 +854,11 @@ def beq(instr):
     b = reg_file.read(instr.rt)
     dist = reg_file.read_pc()
     tmp = instr.imm << 2
-    dist += tmp
+    dist = tmp + reg_file.read_pc() + 4
     if a == b:
         reg_file.write(34, dist)
+    elif dist == 0:
+        reg_file.update_pc()
     else:
         reg_file.update_pc()
     # pass
@@ -870,9 +872,8 @@ def bne(instr):
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
     # dist = reg_file.read_pc()
-
     tmp = instr.imm * 4
-    dist = tmp + reg_file.read_pc()
+    dist = tmp + reg_file.read_pc() + 4
 
     print('pc=', reg_file.read_pc(), "tmp", tmp, "dist:", dist)
     print('a=', a, "b=", b)
