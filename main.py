@@ -100,6 +100,23 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100000') + '\n')
             line_pos += 1
 
+        elif line[0:4] == "andi":  # ANDI
+            line = line.replace("andi", "")
+            line = line.split(",")
+
+            tmp = str(line[2])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+                print("x")
+            else:
+                imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
+
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('001100') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
         elif line[0:3] == "and":  # bitwise and | and $rd,$rs,$rt
             line = line.replace("and", "")
             line = line.split(",")
@@ -911,9 +928,11 @@ def saveJumpLabel(asm, label_index, label_name):
     for line in asm:
         line = line.replace(" ", "")
         if line.find(":") != -1:
+
             label_name.append(line[0:line.index(':')])  # save label name from each read line into array
             label_index.append(line_count)  # save label's index
-            asm[line_count] = line[line.index(':') + 1:]
+            del asm[line_count]
+            # asm[line_count] = line[line.index(':') +1 :]
         # elif line.find("#") != -1:
         #     asm[line_count] = line[line.index('#')+1 :]
 
@@ -929,6 +948,7 @@ def main():
     label_name = []
     label_index = []
     line_count = 0
+    DIC = 0
     mem_start = 8192  # '0x2000'
 
     for i in range(1025):  # this could work for each instruction instr_list: -> loop 1025
@@ -936,7 +956,7 @@ def main():
         memory.append(mem(addr, 0, 0, 0, 0))
         mem_start += 4  # increment addr by 4, each will have access to every bit.
 
-    #   saving label and their index.
+    # saving label and their index.
     for i in range(asm.count('\n')):
         asm.remove('\n')
 
@@ -966,23 +986,19 @@ def main():
     # working file reads
     for line in asm:
         line = line.replace('$', "")
-        line = line.replace('\n', '')
-        # line = line.replace('#', '')
+        line = line.replace('\n', "")
         line = line.replace('zero', '0')
 
         if line.find(':') != -1:
             pass
         else:
+
             instr_list.append(line)
 
-    #
-    # for i in instr_list:
-    #     if instr_list[i] == '':
-    #         instr_list.remove('')
 
     print(instr_list)
     # writes binary of assembly code to file
-    asm_to_bin(instr_list, label_name, label_index)
+    # asm_to_bin(instr_list, labelName, labelIndex)
     # print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
 
     """"
@@ -1011,7 +1027,7 @@ def main():
     # print("pc= {0} reg 3 = {1}".format(pc, reg_file.read(3), '08x'))
 
     while pc <= line_count * 4:
-        if pc % 4 == 0  :
+        if pc % 4 == 0:
             # if pc == line_count * 4:
             # break
             try:
@@ -1026,9 +1042,15 @@ def main():
             except:
                 print("end of instr")
                 break
+
         instr_func(sim_instr[pc])
+        DIC += 1
         pc = reg_file.update_pc()
         pc = reg_file.read_pc()
+
+        # regfile.printRegs()
+        # tmp = input("next instr?")
+        # time.sleep(1)
 
         reg_file.print_regs()
         # print("pc= {0} reg 3 = 0x{1}".format(pc,format(reg_file.read(3), '08x') ))
@@ -1039,17 +1061,20 @@ def main():
 
     count = 0
     print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    for row in memory[:10]:
+    for row in memory:
         # print("address:  ",row.addr)
         # tmp = row.addr - int(0x2000,16)
         if row.addr % (4*8) == 0:
-            print('\n', end="")
+            print('\n')  # , end="")
         # new way to write to memory. kinda slow because array O(N)
         # row.writeMem(row.addr, l + 1)
         count += 1
         row.print_mem()
 
+        print('DIC', DIC)
+
     # print(" reg 3 = 0x{0}, reg 4 = 0x{1}".format(format(reg_file.read(3), '08x'),format(reg_file.read(4), '08x') ))
+
 
     # the old way to change memory.
     # mem_Value[100].print_mem()
