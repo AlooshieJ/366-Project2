@@ -1,23 +1,363 @@
 # lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
 # think about register class.... that would
-from ASMtoBIN import *
 import time
 import os
 
 
+# added for - registers
+def twos_comp(number):
+    return 4294967296 + int(number)
 
-#added for - registers
-def twosComp(number):
-        return 4294967296 + int(number)
 
-def bindigits(n, bits):
+def bin_digits(n, bits):
     s = bin(n & int("1"*bits, 2))[2:]
     return ("{0:0>%s}" % bits).format(s)
 
 
+def check_base(read_in):
+    to_s = str(read_in)
+    if to_s[0:2] == '0x':
+        return 16
+    else:
+        return 2
+
+
+def asm_to_bin(asm, label_name, label_index):
+    line_pos = 0
+    f = open("toBin.txt", "w+")
+
+    for line in asm:
+        line = line.replace("\n", "")  # Removes extra chars
+        line = line.replace("$", "")
+        line = line.replace(" ", "")
+        line = line.replace("%", ",")
+        line = line.replace("zero", "0")  # assembly can also use both $zero and $0
+
+        if line[0:5] == "addiu":  # ADDIU
+            line = line.replace("addiu", "")
+            line = line.split(",")
+            tmp = str(line[2])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('001001') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:4] == "xori":  # xori rt, rs, imm
+            line = line.replace("xori", "")
+            line = line.split(",")
+            tmp = str(line[2])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[0]), '05b')
+            bin_out = str('001110' + rs + rt + str(imm) + '\n')
+            f.write(bin_out)
+            line_pos += 1
+
+        elif line[0:3] == "xor":  # xor $rd ,$rs, $rt
+            line = line.replace("xor", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            bin_out = str("{0}{1}{2}{3}{4}").format('000000', rs, rt, rd, '00000100110' + '\n')
+            f.write(bin_out)
+            line_pos += 1
+
+        elif line[0:4] == "addi":  # ADDI
+            line = line.replace("addi", "")
+            line = line.split(",")
+
+            tmp = str(line[2])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+                print("x")
+            else:
+                imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
+
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('001000') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "add":  # ADD
+            line = line.replace("add", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100000') + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "and":  # bitwise and | and $rd,$rs,$rt
+            line = line.replace("and", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            bin_out = str("{0}{1}{2}{3}{4}").format('000000', rs, rt, rd, '00000100100' + "\n")
+            f.write(bin_out)
+            line_pos += 1
+
+        elif line[0:4] == "mflo":  # lo
+            line = line.replace("mflo", "")
+            rd = format(int(line), '05b')
+            f.write(str('0000000000000000') + str(rd) + str('00000010010') + '\n')
+            line_pos += 1
+
+        elif line[0:4] == "mflo":  # mflo $rd
+            line = line.replace("mflo", "")
+            rd = format(int(line), '05b')
+            bin_out = str("0000000000000000" + rd + "00000010010" + "\n")
+            f.write(bin_out)
+            line_pos += 1
+
+        elif line[0:3] == "ori":  # ori
+            line = line.replace("ori", "")
+            line = line.split(",")
+            tmp = str(line[2])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('001101') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:2] == "or":  # or $rd, rs, rt
+            line = line.replace("or", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            f.write(str('000000') + str(rs) + str(rt) + str(rd) + '00000100101' + '\n')
+            line_pos += 1
+
+        elif line[0:4] == "mfhi":  # MFHI
+            line = line.replace("mfhi", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            f.write(str('0000000000000000') + str(rd) + str('00000010000') + '\n')
+            line_pos += 1
+
+        elif line[0:5] == "multu":  # MULTU
+            line = line.replace("multu", "")
+            line = line.split(",")
+            rs = format(int(line[0]), '05b')
+            rt = format(int(line[1]), '05b')
+            f.write(str('000000') + str(rs) + str(rt) + str('0000000000011001') + '\n')
+            line_pos += 1
+
+        elif line[0:4] == "mult":  # MULT
+            line = line.replace("mult", "")
+            line = line.split(",")
+            rs = format(int(line[0]), '05b')
+            rt = format(int(line[1]), '05b')
+            f.write(str('000000') + str(rs) + str(rt) + str('0000000000011000') + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "srl":  # SRL $rd,$rt, h
+            line = line.replace("srl", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rt = format(int(line[1]), '05b')
+            rh = format(int(line[2]), '05b')
+            f.write(str('00000000000') + str(rt) + str(rd) + str(rh) + str('000010') + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "sll":  # SLL
+            line = line.replace("sll", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rt = format(int(line[1]), '05b')
+            rh = format(int(line[2]), '05b')
+            f.write(str('00000000000') + str(rt) + str(rd) + str(rh) + str('000000') + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "lui":  # LUI
+            line = line.replace("lui", "")
+            line = line.split(",")
+            rt = format(int(line[0]), '05b')
+            tmp = str(line[1])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+
+            f.write(str('00111100000') + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:2] == "lb":  # lb
+            line = line.replace("lb", "")
+            line = line.replace(")", "")
+            line = line.replace("(", ",")
+            line = line.split(",")
+            tmp = str(line[1])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+
+            rs = format(int(line[2]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('100000') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:2] == "sb":  # sb
+            line = line.replace("sb", "")
+            line = line.replace(")", "")
+            line = line.replace("(", ",")
+            line = line.split(",")
+            tmp = str(line[1])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+
+            rs = format(int(line[2]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('101000') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:2] == "lw":  # lw
+            line = line.replace("lw", "")
+            line = line.replace(")", "")
+            line = line.replace("(", ",")
+            line = line.split(",")
+            tmp = str(line[1])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+
+            rs = format(int(line[2]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('100011') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:2] == "sw":  # sw
+            line = line.replace("sw", "")
+            line = line.replace(")", "")
+            line = line.replace("(", ",")
+            line = line.split(",")
+            tmp = str(line[1])
+            if check_base(tmp) == 16:
+                x = int(tmp, 16)
+                imm = bin_digits(x, 16)
+            else:
+                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+
+            rs = format(int(line[2]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('101011') + str(rs) + str(rt) + str(imm) + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "beq":  # beq
+            line = line.replace("beq", "")
+            line = line.split(",")
+            rs = format(int(line[0]), '05b')
+            rt = format(int(line[1]), '05b')
+
+            if line[2].isdigit():  # First,test to see if it's a label or a integer
+                f.write(str('000100') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
+
+            else:  # Jumping to label
+                for i in range(len(label_name)):
+                    if label_name[i] == line[2]:
+                        jump_dist = -1 * (line_pos + 1 + i - label_index[i])
+                        jump_dist = bin_digits(jump_dist, 16)
+                        f.write(str('000100') + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "bne":  # bne $rs, $rt, offset /distance
+            line = line.replace("bne", "")
+            line = line.split(",")
+            rs = format(int(line[0]), '05b')
+            rt = format(int(line[1]), '05b')
+
+            if line[2].isdigit():  # First,test to see if it's a label or a integer
+                f.write(str('000101') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
+
+            else:  # branching to label
+                for i in range(len(label_name)):
+                    if label_name[i] == line[2]:
+                        jump_dist = -1 * (line_pos + 1 + i - label_index[i])
+                        jump_dist = bin_digits(jump_dist, 16)
+
+            out = str('000101' + str(rs) + str(rt) + str(jump_dist) + '\n')
+            f.write(out)
+            line_pos += 1
+
+        elif line[0:4] == "sltu":  # sltu
+            line = line.replace("sltu", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000101011') + '\n')
+            line_pos += 1
+
+        elif line[0:3] == "slt":  # slt
+            line = line.replace("slt", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000101010') + '\n')
+            line_pos += 1
+
+        elif line[0:4] == "spec":  # special instruction
+            line = line.replace("spec", "")
+            line = line.split(",")
+            rd = format(int(line[0]), '05b')
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[2]), '05b')
+            bin_out = str("{0}{1}{2}{3}{4}").format('000000', rs, rt, rd, '00000111111' + '\n')
+            f.write(bin_out)
+            line_pos += 1
+
+        elif line[0:1] == "j":  # JUMP
+            line = line.replace("j", "")
+            line = line.split(",")
+
+            # Since jump instruction has 2 options:
+            # 1) jump to a label
+            # 2) jump to a target (integer)
+            # We need to save the label destination and its target location
+
+            if line[0].isdigit():  # First,test to see if it's a label or a integer
+                f.write(str('000010') + str(format(int(line[0]), '026b')) + '\n')
+
+            else:  # Jumping to label
+                for i in range(len(label_name)):
+                    if label_name[i] == line[0]:
+                        f.write(str('000010') + str(format(int(label_index[i]), '026b')) + '\n')
+            line_pos += 1
+
+    print(line_pos)
+
+
 def sign_extend(value, bits):
     mask = 0xffffff00
-    bindigits(value,32)
+    bin_digits(value,32)
     value = mask ^ value
     print("{:08x} ? {:08x}, value: {:08x} ".format(mask, bits, value))
     #
@@ -45,7 +385,7 @@ class registerfile():
     def write(self, writeindex, writeback_value):
         if(writeindex != 0):
             if writeback_value < 0:
-                self.data[writeindex] = twosComp(writeback_value)
+                self.data[writeindex] = twos_comp(writeback_value)
             else:
                 self.data[writeindex] = writeback_value
     #added this for storing...
@@ -245,7 +585,7 @@ def mult(instr):
     b = regfile.read(instr.rt)
 
     multiply = a * b
-    c = bindigits(multiply, 64)
+    c = bin_digits(multiply, 64)
     d = int(c[0:31], 2)
     e = int(c[32:64], 2)
     regfile.writeHi(d)
@@ -290,7 +630,7 @@ def mfhi(instr):
     regfile.movefromHi(instr.rd)
 
 
-def mflo (instr):
+def mflo(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     regfile.movefromLo(instr.rd)
 
@@ -300,7 +640,7 @@ def sll(instr):
     a = regfile.read( instr.rt)
     b = instr.h
     if a < 0:
-        regfile.write(instr.rd, twosComp(a)<< b)
+        regfile.write(instr.rd, twos_comp(a)<< b)
     else:
         regfile.write(instr.rd, a<<b)
 
@@ -331,7 +671,7 @@ def addi(instr):
 def addiu(instr):
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm))
     a = regfile.read(instr.rs)
-    regfile.write(instr.rt, a + twosComp(instr.imm))
+    regfile.write(instr.rt, a + twos_comp(instr.imm))
 
 def ori(instr):
     #print(instr.binary_S + '\n')
@@ -350,7 +690,7 @@ def xori(instr):
 def lui(instr):
     print("{0} ${1}, {2}".format(instr.name, instr.rt, instr.imm) )
     a = regfile.read(instr.imm)
-    a = bindigits(a, 32)
+    a = bin_digits(a, 32)
     b = a[16:32]
     a[16:32] = a[0:15]
     a[0:15] = b
@@ -413,7 +753,7 @@ def sb(instr):      # b0 = msb b3 = lsb
     offset = index % 4
 
     value = regfile.read(instr.rt)
-    value = bindigits(value,32)
+    value = bin_digits(value,32)
     #print(value[:2],value[2:4],value[4:6],value[6:8])
     value = int(value[-8:],2)
     print("index: ", index, "addr: ", address, "offset: ", offset, "value:",value)
@@ -485,7 +825,7 @@ def spec(instr):
     b = regfile.read(instr.rt)
 
     multiply = a * b
-    c = bindigits(multiply, 64)
+    c = bin_digits(multiply, 64)
     d = int(c[0:31], 2)
     e = int(c[32:64], 2)
     regfile.writeHi(d)
