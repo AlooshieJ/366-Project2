@@ -656,19 +656,15 @@ def main():
         #line = line.replace('#', '')
         line = line.replace('zero', '0')
 
-        if line.find(':') != -1 :
-            #line.truncate()
+        if line.find(':') != -1  :
             pass
-        if line.count('#'):
+        else:
+            instr_list.append(line)
 
-             line = list(line)
-             line[line.index('#'): ] = ''
-             line = ''.join(line)
-        instr_list.append(line)
-             #print(line)
-
-        #else:
-            #instr_list.append(line) # creates an array of every instruction in the file
+    #
+    # for i in instr_list:
+    #     if instr_list[i] == '':
+    #         instr_list.remove('')
 
     print(instr_list)
     # writes binary of assembly code to file
