@@ -567,6 +567,7 @@ def add(instr):
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
     reg_file.write(instr.rd, a + b)
+    reg_file.update_pc()
 
 
 def OR(instr):
@@ -576,6 +577,7 @@ def OR(instr):
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
     reg_file.write(instr.rd, a | b)
+    reg_file.update_pc()
 
 
 def mult(instr):
@@ -591,6 +593,7 @@ def mult(instr):
     e = int(c[32:64], 2)
     reg_file.write_hi(d)
     reg_file.write_lo(e)
+    reg_file.update_pc()
 
 
 def slt(instr):
@@ -599,8 +602,10 @@ def slt(instr):
     b = reg_file.read(instr.rt)
     if a < b:
         reg_file.write(instr.rd, 1)
+        reg_file.update_pc()
     else:
         reg_file.write(instr.rd, 0)
+        reg_file.update_pc()
 
 
 def xor(instr):
@@ -608,6 +613,7 @@ def xor(instr):
     a = reg_file.read(instr.rs) 
     b = reg_file.read(instr.rt)
     reg_file.write(instr.rd, a ^ b)
+    reg_file.update_pc()
 
 
 def multu(instr):
@@ -617,6 +623,7 @@ def multu(instr):
     c,  d = divmod((a * b), (2 ^ 32))
     reg_file.write_hi(c)
     reg_file.write_lo(d)
+    reg_file.update_pc()
 
 
 def AND(instr):
@@ -624,6 +631,7 @@ def AND(instr):
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
     reg_file.write(instr.rd, a & b)
+    reg_file.update_pc()
 
 
 def andi(instr):
@@ -631,16 +639,19 @@ def andi(instr):
     a = reg_file.read(instr.rs)
     b = instr.imm
     reg_file.write(instr.rt, a & b)
+    reg_file.update_pc()
 
 
 def mfhi(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     reg_file.move_from_hi(instr.rd)
+    reg_file.update_pc()
 
 
 def mflo(instr):
     print("{0} ${1}".format(instr.name, instr.rd))
     reg_file.move_from_lo(instr.rd)
+    reg_file.update_pc()
 
 
 def sll(instr):
@@ -651,8 +662,10 @@ def sll(instr):
     if a < 0:
         value = (twos_comp(a) << b) & mask
         reg_file.write(instr.rd, value)
+        reg_file.update_pc()
     else:
         reg_file.write(instr.rd, (a << b) & mask)
+        reg_file.update_pc()
 
 
 def srl(instr):
@@ -663,9 +676,10 @@ def srl(instr):
     if a < 0:
         value = (twos_comp(a) >> b) & mask
         reg_file.write(instr.rd, value)
+        reg_file.update_pc()
     else:
-
         reg_file.write(instr.rd, (a >> b) & mask)
+        reg_file.update_pc()
         # chop off the msb when gets past
 
 
@@ -679,8 +693,10 @@ def sltu(instr):
     b = reg_file.read(instr.rt)
     if a < b:
         reg_file.write(instr.rd, 1)
+        reg_file.update_pc()
     else:
         reg_file.write(instr.rd, 0)
+        reg_file.update_pc()
 
 
 # i - types
@@ -689,12 +705,14 @@ def addi(instr):
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rt, instr.rs, instr.imm))
     a = reg_file.read(instr.rs)
     reg_file.write(instr.rt, a + instr.imm)
+    reg_file.update_pc()
 
 
 def addiu(instr):
     print(instr.name + " $" + str(instr.rt) + ", $" + str(instr.rs) + ", " + str(instr.imm))
     a = reg_file.read(instr.rs)
     reg_file.write(instr.rt, a + twos_comp(instr.imm))
+    reg_file.update_pc()
 
 
 def ori(instr):
@@ -703,12 +721,14 @@ def ori(instr):
     # return instr.rt  or str.rs
     a = reg_file.read(instr.rs) 
     reg_file.write(instr.rt, a | instr.imm)
+    reg_file.update_pc()
 
 
 def xori(instr):
     print("{0} ${1}, ${2}, {3}\n".format(instr.name, instr.rt, instr.rs, instr.imm))
     a = reg_file.read(instr.rs)
     reg_file.write(instr.rt, a ^ instr.imm)
+    reg_file.update_pc()
 
 
 def lui(instr):
@@ -720,11 +740,13 @@ def lui(instr):
     a[0:15] = lsb
     print("a", a)
     reg_file.write(instr.rt, int(a, 2))
+    reg_file.update_pc()
 
 
 def lw(instr):
     # print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
+    reg_file.update_pc()
 
 
 def sw(instr):
@@ -750,6 +772,7 @@ def sw(instr):
         exit(0)  # this will cause code to end
     else:
         memory[address].writeWordMem(value)
+        reg_file.update_pc()
         # memory[address].print_mem()
 
 
@@ -778,6 +801,7 @@ def lb(instr):  # lb rt, offset(rs)
     elif offset == 3:
         # print("addr + 3")
         value = memory[address].b3
+    reg_file.update_pc()
 
     # print(sign_extend(value,32))
     if value < 0:
@@ -819,6 +843,7 @@ def sb(instr):  # b0 = msb b3 = lsb
         memory[address].b3 = value
 
     memory[address].print_mem()
+    reg_file.update_pc()
 
 
 def beq(instr):
@@ -832,10 +857,10 @@ def beq(instr):
     if a == b:
         reg_file.write(34, dist)
     else:
-         pass
+        reg_file.update_pc()
+    # pass
     #     tmp + 4
     #     reg_file.write(34, tmp)
-
 
 
 def bne(instr):
@@ -843,21 +868,23 @@ def bne(instr):
     print(str(instr.name) + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
-   # dist = reg_file.read_pc()
+    # dist = reg_file.read_pc()
 
     tmp = instr.imm * 4
     dist = tmp + reg_file.read_pc()
 
-    print('pc=',reg_file.read_pc(),"tmp",tmp, "dist:",dist)
-    print('a=',a,"b=",b)
+    print('pc=', reg_file.read_pc(), "tmp", tmp, "dist:", dist)
+    print('a=', a, "b=", b)
     if a != b:
         reg_file.write(34, dist)
-    elif dist ==0:
+    elif dist == 0:
         reg_file.update_pc()
     else:
-         pass
+        reg_file.update_pc()
+        # pass
     #     tmp += 4
     #     reg_filereg_file.update_pc()
+
 
 # jump
 def j(instr):
@@ -871,23 +898,43 @@ def spec(instr):
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
 
-    multiply = a * b
-    c = bin_digits(multiply, 64)
-    d = int(c[0:31], 2)
-    e = int(c[32:64], 2)
-    reg_file.write_hi(d)
-    reg_file.write_lo(e)
+    for i in range(5):
+        multiply = a * b
+        c = bin_digits(multiply, 64)
+        d = int(c[0:31], 2)
+        e = int(c[32:64], 2)
+        reg_file.write_hi(d)
+        reg_file.write_lo(e)
 
-    c = reg_file.read(33)  # read hi
-    d = reg_file.read(32)  # read lo
+        c = reg_file.read(33)  # read hi
+        d = reg_file.read(32)  # read lo
 
-    reg_file.write(instr.rd, c ^ d)
+        a = c ^ d
 
+    mask = 4294967295
+    shifter_left = a << 16
+    shifter_left = shifter_left & mask
+    shifter_left = shifter_left >> 16
+    shifter_right = a >> 16
+    a = shifter_left ^ shifter_right
+
+    shifter_left = a << 24
+    shifter_left = shifter_left & mask
+    shifter_left = shifter_left >> 24
+    shifter_right = a << 16
+    shifter_right = shifter_right & mask
+    shifter_right = shifter_right >> 24
+
+    a = shifter_left ^ shifter_right
+
+    reg_file.write(instr.rd, a)
+    reg_file.update_pc()
 
 # python directory, like array, but uses "key" to instead of indices.
 # first couple lines ... add more
 # function table in a way..
 #               key,    [0],  [1]
+
 r_type = {
     # r - types:
     '100000': (add, 'add'),
