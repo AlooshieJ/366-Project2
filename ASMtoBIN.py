@@ -34,7 +34,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+                imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
 
             rs = format(int(line[1]), '05b')
             rt = format(int(line[0]), '05b')
@@ -49,7 +49,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+                imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
 
             #imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
             rs = format(int(line[1]), '05b')
@@ -96,6 +96,24 @@ def asm_to_bin(asm, labelName, labelIndex):
             f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100000') + '\n')
             linePos += 1
 
+        elif line[0:4] == 'andi': # andi rt,rs, imm
+            line = line.replace("andi","")
+            line = line.split(",")
+            print(line)
+            tmp = str(line[2])
+            if checkbase(tmp) == 16:
+                x = int(tmp,16)
+                imm = bindigits(x,16)
+                print("x")
+            else:
+                imm =  format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
+                #print("b")
+
+            rs = format(int(line[1]), '05b')
+            rt = format(int(line[0]), '05b')
+            f.write(str('001100') + str(rs) + str(rt) + str(imm) + '\n')
+            linePos += 1
+
         elif(line[0:3] == "and"):  # bitwise and | and $rd,$rs,$rt
             line = line.replace("and", "")
             line = line.split(",")
@@ -127,7 +145,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+                imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
 
             #imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
             rs = format(int(line[1]), '05b')
@@ -193,7 +211,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+                imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
 
             #imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
             f.write(str('00111100000') + str(rt) + str(imm) + '\n')
@@ -209,7 +227,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+                imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
 
             #imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
@@ -227,7 +245,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+                imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
 
             #imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
@@ -245,7 +263,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+                imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
 
             #imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
@@ -263,7 +281,7 @@ def asm_to_bin(asm, labelName, labelIndex):
                 x = int(tmp, 16)
                 imm = bindigits(x, 16)
             else:
-                imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
+                imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
 
             #imm = format(int(line[1]), '016b') if (int(line[1]) > 0) else format(65536 + int(line[1]), '016b')
             rs = format(int(line[2]), '05b')
