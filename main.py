@@ -734,12 +734,9 @@ def xori(instr):
 def lui(instr):
     print("{0} ${1}, {2}".format(instr.name, instr.rt, instr.imm))
     a = instr.imm
-    a = bin_digits(a, 32)
-    lsb = a[16:32]
-    a[16:32] = a[0:15]
-    a[0:15] = lsb
+    shift = a << 16
     print("a", a)
-    reg_file.write(instr.rt, int(a, 2))
+    reg_file.write(instr.rt, shift)
     reg_file.update_pc()
 
 
@@ -820,9 +817,9 @@ def sb(instr):  # b0 = msb b3 = lsb
     offset = index % 4
 
     value = reg_file.read(instr.rt)
-    print('value to store:',value)
+    print('value to store:', value)
     value = bin_digits(value, 32)
-    print(value[:2],value[2:4],value[4:6],value[6:8])
+    print(value[:2], value[2:4], value[4:6], value[6:8])
     value = int(value[-8:], 2)
     print("index: ", index, "addr: ", address, "offset: ", offset, "value:", value)
 
@@ -934,6 +931,7 @@ def spec(instr):
 # first couple lines ... add more
 # function table in a way..
 #               key,    [0],  [1]
+
 
 r_type = {
     # r - types:
@@ -1090,10 +1088,10 @@ def main():
 
                 elif sim_instr[pc].type == 'i_type':
                     instr_func = i_type[sim_instr[pc].func][0]
-                    icount+= 1
+                    icount += 1
                 else:
                     instr_func = j_type[sim_instr[pc].func][0]
-                    jcount+= 1
+                    jcount += 1
 
             except:
                 print("end of instr")
@@ -1109,7 +1107,7 @@ def main():
         # time.sleep(1)
 
         # reg_file.print_regs()
-        #print("pc= {0} reg 3 = 0x{1}".format(pc,format(reg_file.read(10), '08x') ))
+        # print("pc= {0} reg 3 = 0x{1}".format(pc,format(reg_file.read(10), '08x') ))
         # time.sleep(1)
 
 # take as string..
@@ -1121,7 +1119,7 @@ def main():
         # print("address:  ",row.addr)
         # tmp = row.addr - int(0x2000,16)
         if row.addr % (4*8) == 0:
-             print( '\n', end=" ")
+             print('\n', end=" ")
         # new way to write to memory. kinda slow because array O(N)
         # row.writeMem(row.addr, l + 1)
         count += 1
