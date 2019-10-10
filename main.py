@@ -149,7 +149,7 @@ def asm_to_bin(asm, label_name, label_index):
                 imm = bin_digits(x, 16)
             else:
                 imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
-
+            print("binary conversion: ",imm, tmp, x)
             rs = format(int(line[1]), '05b')
             rt = format(int(line[0]), '05b')
             f.write(str('001101') + str(rs) + str(rt) + str(imm) + '\n')
@@ -719,7 +719,11 @@ def ori(instr):
     # print(instr.binary_S + '\n')
     print("{0} ${1}, ${2}, {3}".format(instr.name, instr.rt, instr.rs, instr.imm))
     # return instr.rt  or str.rs
-    a = reg_file.read(instr.rs) 
+    a = reg_file.read(instr.rs)
+    b = twos_comp(instr.imm)
+    c = a | b
+    print(hex(a), int(b), hex(c))
+
     reg_file.write(instr.rt, a | instr.imm)
     reg_file.update_pc()
 
@@ -1062,7 +1066,7 @@ def main():
     for binary in bin_file.readlines():
         binary = binary.replace('\n', '')
         to_hex = hex(int(binary, 2))
-        # print(to_hex)
+        #print(to_hex)
         x = Instruction(to_hex)
         sim_instr.append(x)
         sim_instr.append('')
@@ -1071,13 +1075,15 @@ def main():
 
         line_count += 4
 
+
     # """
     # THIS is the loop for the simulator. only tested infinite loop w/ jump instruction
     # pc increments correctly
-    pc = reg_file.read_pc()
     # print("pc= {0} reg 3 = {1}".format(pc, reg_file.read(3), '08x'))
-
+    pc = 0
     while pc <= line_count * 4:
+        pc = reg_file.read_pc()
+
         if pc % 4 == 0:
             # if pc == line_count * 4:
             # break
@@ -1099,16 +1105,14 @@ def main():
 
         instr_func(sim_instr[pc])
         DIC += 1
-        reg_file.update_pc()
-        pc = reg_file.read_pc()
+        #pc = reg_file.read_pc()
 
         # reg_file.print_regs()
         # tmp = input("next instr?")
         # time.sleep(1)
 
-        # reg_file.print_regs()
-        # print("pc= {0} reg 3 = 0x{1}".format(pc,format(reg_file.read(10), '08x') ))
-        # time.sleep(1)
+        reg_file.print_regs()
+        time.sleep(1)
 
 # take as string..
     # look at last 3 bits / 4 know index number
