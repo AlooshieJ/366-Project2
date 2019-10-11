@@ -1,73 +1,40 @@
-lui $9, 0xFA19
-ori $9, $9, 0xE366
-addi $8, $0, 1
-addi $10, $0, 0x2020
-addi $11, $0, 100
+addi $8 , $0 , 0x2000
+addi $9, $0 , 1
+add $10, $0, $9
+addi $19,$0,255
+addi $18, $0, 8
+addi $17,$0,4
+addi $12,$0,0x2000
 
-loop:
-spec $15,$8,$9
-
-sll $16, $15, 24
-srl $16, $16, 24
-sll $17, $15, 16
-srl $17, $17, 24
-xor $15, $16, $17
-
-
-sb $15, 0($10)
+loop_sb:
+sb $10, 0($8)
+addi $8, $8 ,1
 addi $10, $10, 1
-addi $8, $8, 1
-addi $11, $11, -1
-bne $11, $0, loop
+bne $10,$19, loop_sb
 
-addi $11, $0, 100
-addi $10, $0, 0x2020
-addi $23, $0, 0x2000
+sb $10, 0($8)
+sb $10, 1($8)
 
-store_data:
-add $18, $19, $0
-sw $10, 0($23)
-sb $18, 4($23)
+loop_lb:
+lb $11,0($8)
+addi $15, $0, 0
+addi $16, $0, 0
 
-loop_max:
-lb $19, 0($10)
-sltu $20, $18, $19
-bne $20, $0,  store_data
+loop_and:
+andi $14,$11, 1
+beq $14, $9, ones_count
+j shift
 
-addi $10, $10, 1
-addi $11, $11, -1
-bne $11, $0, loop_max
+ones_count:
+addi $15,$15, 1
 
-addi $11, $0, 100
-addi $10, $0, 0x2020
-addi $23, $0, 0x2000
-addi $8, $0, 0
-beq $0, $0, loop_match
+shift:
+srl $11, $11, 1
+addi $16,$16, 1
+bne $16, $18 ,loop_and
+bne $15, $17,load_next
+addi $20,$20,1
 
-pattern_match:
-addi $8, $8, 1
-beq $0, $0, else
-
-loop_match:
-lb $19, 0($10)
-addi $9, $0, 0x1F
-and  $20, $19, $9
-beq $20, $9, pattern_match
-
-addi $9, $0, 0x3E
-and  $20, $19, $9
-beq $20, $9, pattern_match
-
-addi $9, $0, 0x7C
-and  $20, $19, $9
-beq $20, $9, pattern_match
-
-addi $9, $0, 0xF8
-and  $20, $19, $9
-beq $20, $9, pattern_match
-
-else:
-sw $8, 8($23)
-addi $10, $10, 1
-addi $11, $11, -1
-bne $11, $0, loop_match
+load_next:
+addi $8,$8, -1
+bne $8 , $12,loop_lb
