@@ -443,8 +443,6 @@ class registerFile:
         self.data[34] += 4
 
     def print_regs(self):
-        print("\nRegisters:")
-
         for i in range(35):
             if i % 5 == 0:
                 print('\n', end='')
@@ -956,7 +954,7 @@ def spec(instr):
     for i in range(5):
         multiply = a * b
         c = bin_digits(multiply, 64)
-        d = int(c[0:32], 2)
+        d = int(c[0:31], 2)
         e = int(c[32:64], 2)
 
         a = d ^ e
