@@ -587,7 +587,7 @@ def mult(instr):
 
     multiply = a * b
     c = bin_digits(multiply, 64)
-    d = int(c[0:31], 2)
+    d = int(c[0:32], 2)
     e = int(c[32:64], 2)
     reg_file.write_hi(d)
     reg_file.write_lo(e)
@@ -627,8 +627,8 @@ def multu(instr):
 
     multiply = a * b
     c = bin_digits(multiply, 64)
-    d = int(c[0:31], 2)
-    e = int(c[32:64], 2)
+    d = int(c[0:32], 2)
+    e = int(c[32:64],2)
     reg_file.write_hi(d)
     reg_file.write_lo(e)
     reg_file.update_pc()
@@ -765,12 +765,23 @@ def lw(instr):
         print("error")
         exit(0)
     else:
-       b0 = memory[address].b0
-       b1 = memory[address].b1
-       b2 = memory[address].b2
-       b3 = memory[address].b3
-       value = str(b3,b2,b1,b0)
-       print(value)
+       b0 = hex(memory[address].b0)[2:]
+       b1 = hex(memory[address].b1)[2:]
+       b2 = hex(memory[address].b2)[2:]
+       b3 = hex(memory[address].b3)[2:]
+       if b0 == '0':
+           b0 = '00'
+       if b1 == '0':
+            b1 = '00'
+       if b2 == '0':
+            b2 = '00'
+       if b3 == '0':
+            b3 = '00'
+       tmp = b3+b2+b1+b0
+       tmp = int(tmp,16)
+       print(b3,b2,b1,b0,tmp )
+       reg_file.write(instr.rt,tmp)
+
 
 
     reg_file.update_pc()
@@ -906,8 +917,8 @@ def bne(instr):
     print('a=', a, "b=", b)
     if a != b:
         reg_file.write(34, dist)
-    elif dist == 0:
-        reg_file.update_pc()
+    # elif dist == 0:
+    #     reg_file.update_pc()
     else:
         reg_file.update_pc()
         # pass
@@ -918,7 +929,11 @@ def bne(instr):
 # jump
 def j(instr):
     print(instr.name + str(" ") + str(instr.imm))
-    reg_file.write(34, instr.imm)
+    #oldPC = reg_file.read_pc()
+   # newPC = oldPC &0xf0000000 |instr.imm << 2
+    #print(oldPC, newPC )
+    reg_file.write(34, instr.imm << 2)
+    #exit(0)
 
 
 # special instruction
@@ -1047,25 +1062,6 @@ def main():
     saveJumpLabel(asm, label_index, label_name)
 
     print(label_name, label_index)
-    """
-    for line in asm:
-
-        if line.count('#'):
-             line = list(line)
-             line[line.index('#'):-1] = ''
-             line = ''.join(line)
-
-        if line[0] == '\n':
-            continue
-
-
-        line = line.replace('$', "")
-        line = line.replace('\n', '')
-        line = line.replace('#', '')
-        line = line.replace('zero', '0')
-
-        instr_list.append(line) # creates an array of every instruction in the file
-     """
 
     # working file reads
     for line in asm:
