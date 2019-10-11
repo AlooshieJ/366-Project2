@@ -1046,6 +1046,8 @@ def printallmem():
         count += 1
         row.print_mem()
 
+    print(" ")
+
 
 def main():
     # input asm file
