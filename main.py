@@ -470,7 +470,7 @@ class mem:
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
     def print_mem(self ):  # b3 = msb , b0 = lsb
-        print(" ", hex(self.addr), end="  ")
+        print(" ", hex(self.addr), end=":  ")
         print("{0:02x}".format(self.b3), end="")
         print("{0:02x}".format(self.b2), end="")
         print("{0:02x}".format(self.b1), end="")
@@ -954,7 +954,7 @@ def spec(instr):
     for i in range(5):
         multiply = a * b
         c = bin_digits(multiply, 64)
-        d = int(c[0:31], 2)
+        d = int(c[0:32], 2)
         e = int(c[32:64], 2)
 
         a = d ^ e
@@ -1042,12 +1042,11 @@ def saveJumpLabel(asm, label_index, label_name):
         line_count += 1
 def printallmem():
     count = 0
-    print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
+    #print('Address |   (+0)    |   (+4)    |   (+8)   |   (+c)    |   (+10)    |   (+14)   |   (+18)    |   (+1c)  ')
+    print('Memory')
     for row in memory[:100]:
-        if row.addr % (4 * 4) == 0:
+        if row.addr % (4 * 8) == 0:
             print('\n', end=" ")
-        # new way to write to memory. kinda slow because array O(N)
-        # row.writeMem(row.addr, l + 1)
         count += 1
         row.print_mem()
 
@@ -1055,7 +1054,10 @@ def printallmem():
 
 def main():
     # input asm file
-    h = open("mips.asm", 'r')
+    readFile = input("select file: (testcase.asm), (hash-default.asm), (hash-plus.asm)" )
+    print(readFile)
+
+    h = open(readFile, 'r')
     bin_file = open("toBin.txt", 'w+')  # binary file
     asm = h.readlines()
     instr_list = []  # what we read from file
@@ -1152,29 +1154,8 @@ def main():
         instr_func(sim_instr[pc])
         DIC += 1
 
-        #reg_file.print_regs()
-        #printallmem()
-        # tmp = input("next instr?")
-        # time.sleep(1)
 
-        #reg_file.print_regs()
-        #time.sleep(0.1)
-
-# take as string..
-    # look at last 3 bits / 4 know index number
-
-    # count = 0
-    # print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    # for row in memory[:100]:
-    #     # print("address:  ",row.addr)
-    #     # tmp = row.addr - int(0x2000,16)
-    #     if row.addr % (4*8) == 0:
-    #         print('\n', end=" ")
-    #     # new way to write to memory. kinda slow because array O(N)
-    #     # row.writeMem(row.addr, l + 1)
-    #     count += 1
-    #     row.print_mem()
-
+    print('\n\nREGS:')
     reg_file.print_regs()
     printallmem()
     tmp = icount + jcount + rcount
