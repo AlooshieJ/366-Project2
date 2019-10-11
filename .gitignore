@@ -9,3 +9,5 @@ __pycache__/ASMtoBIN.cpython-37.pyc
 *.pyc
 *.pyc
 toBin.txt
+toBin.txt
+mips.asm
