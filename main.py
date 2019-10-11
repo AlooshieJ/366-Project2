@@ -25,6 +25,7 @@ def check_base(read_in):
 def asm_to_bin(asm, label_name, label_index):
     line_pos = 0
     f = open("toBin.txt", "w+")
+    jump_dist = 0
 
     for line in asm:
         line = line.replace("\n", "")  # Removes extra chars
@@ -312,6 +313,7 @@ def asm_to_bin(asm, label_name, label_index):
 
             if line[2].isdigit():  # First,test to see if it's a label or a integer
                 f.write(str('000101') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
+                jump_dist = imm
 
             else:  # branching to label
                 for i in range(len(label_name)):
@@ -319,7 +321,7 @@ def asm_to_bin(asm, label_name, label_index):
                         jump_dist = -1 * (line_pos + 1 + i - label_index[i])
                         jump_dist = bin_digits(jump_dist, 16)
 
-            out = str('000101' + str(rs) + str(rt) + str(jump_dist) + '\n')
+            out = str('000101' + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
             f.write(out)
             line_pos += 1
 
@@ -437,21 +439,12 @@ class registerFile:
         self.data[34] += 4
 
     def print_regs(self):
-        # print(self.data )
-        # print("Reg:{0} = 0x{1}".format('pc', format(self.read_pc()),'08x' ) )
-        # table =[[]]
         for i in range(35):
             if i % 10 == 0:
                 print('\n', end='')
             hex_tmp = format(self.read(i), '08x')
             print("{0} = 0x{1}".format(i, hex_tmp), end=" ")
-            # table.append([hex_tmp])
-
         print('\n')
-        # print(tabulate(table, showindex="always"))
-        time.sleep(.1)
-
-        # time.sleep(10)
 
 
 memory = []  # mem(mem_start,0,0,0,0)
@@ -469,13 +462,12 @@ class mem:
         self.b3 = b3  # addr + 3
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
-
     def print_mem(self ):  # b3 = msb , b0 = lsb
-        print(" ",hex(self.addr), end="  ")
+        print(" ", hex(self.addr), end="  ")
         print("{0:02x}".format(self.b3), end="")
         print("{0:02x}".format(self.b2), end="")
         print("{0:02x}".format(self.b1), end="")
-        print("{0:02x}".format(self.b0),end = "")
+        print("{0:02x}".format(self.b0), end="")
 
         # print(hex(self.addr) + str(" ") + b3 + b2+ b1+ b0 + str(" | ")) #, end=" ")
 
@@ -886,13 +878,14 @@ def beq(instr):
     print(instr.name + " $" + str(instr.rs) + ", $" + str(instr.rt) + ", " + str(instr.imm))
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
-    dist = reg_file.read_pc()
-    tmp = instr.imm << 2
+    tmp = instr.imm * 4
     dist = tmp + reg_file.read_pc() + 4
+
+    print('pc=', reg_file.read_pc(), "tmp", tmp, "dist:", dist)
+    print('a=', a, "b=", b, "imm= ", instr.imm)
+
     if a == b:
         reg_file.write(34, dist)
-    elif dist == 0:
-        reg_file.update_pc()
     else:
         reg_file.update_pc()
     # pass
@@ -1149,8 +1142,8 @@ def main():
         # tmp = input("next instr?")
         # time.sleep(1)
 
-        reg_file.print_regs()
-        time.sleep(0.1)
+        #reg_file.print_regs()
+        #time.sleep(0.1)
 
 # take as string..
     # look at last 3 bits / 4 know index number
@@ -1161,7 +1154,7 @@ def main():
         # print("address:  ",row.addr)
         # tmp = row.addr - int(0x2000,16)
         if row.addr % (4*8) == 0:
-             print('\n', end=" ")
+            print('\n', end=" ")
         # new way to write to memory. kinda slow because array O(N)
         # row.writeMem(row.addr, l + 1)
         count += 1
@@ -1171,7 +1164,6 @@ def main():
     tmp = icount + jcount + rcount
     print('DIC', DIC,"sum",tmp)
     
-
 
 if __name__ == "__main__":
     main()
