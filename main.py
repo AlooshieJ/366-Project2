@@ -444,10 +444,13 @@ class registerFile:
 
     def print_regs(self):
         for i in range(35):
-            if i % 10 == 0:
+            if i % 5 == 0:
                 print('\n', end='')
             hex_tmp = format(self.read(i), '08x')
-            print("{0} = 0x{1}".format(i, hex_tmp), end=" ")
+            if i < 10:
+                print("0{0} = 0x{1}".format(i, hex_tmp), end=" ")
+            else:
+                print("{0} = 0x{1}".format(i, hex_tmp), end=" ")
         print('\n')
 
 
@@ -1040,16 +1043,14 @@ def saveJumpLabel(asm, label_index, label_name):
 def printallmem():
     count = 0
     print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    for row in memory[:150]:
-        # print("address:  ",row.addr)
-        # tmp = row.addr - int(0x2000,16)
-        if row.addr % (4 * 8) == 0:
+    for row in memory[:100]:
+        if row.addr % (4 * 4) == 0:
             print('\n', end=" ")
         # new way to write to memory. kinda slow because array O(N)
         # row.writeMem(row.addr, l + 1)
         count += 1
         row.print_mem()
-
+    print(" ")
 
 def main():
     # input asm file
@@ -1060,7 +1061,7 @@ def main():
     label_name = []
     label_index = []
     line_count = 0
-    DIC = 0
+    DIC = 1
     rcount = 0
     icount = 0
     jcount = 0
@@ -1176,7 +1177,7 @@ def main():
     reg_file.print_regs()
     printallmem()
     tmp = icount + jcount + rcount
-    print('DIC', DIC,"sum",tmp)
+    print('   DIC', DIC)
     
 
 if __name__ == "__main__":
