@@ -536,6 +536,12 @@ class Instruction:
             self.type = 'r_type'
             self.name = r_type[self.opcode][1]
 
+        elif self.opcode == '001101':  # ori
+            self.func = self.opcode
+            self.type = 'i_type_special'
+            self.name = i_type_special[self.opcode][1]
+            self.imm = int(self.binary_S[16:32], 2)
+
         else:  # i type
             self.func = self.opcode
             self.type = 'i_type'
@@ -618,13 +624,22 @@ def xor(instr):
 
 def multu(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
+    # a = reg_file.read(instr.rs)
+    # b = reg_file.read(instr.rt)
+    # c, d = divmod((a * b), (2 ^ 32))
+    # reg_file.write_hi(c)
+    # reg_file.write_lo(d)
+    # reg_file.update_pc()
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
-    c, d = divmod((a * b), (2 ^ 32))
-    reg_file.write_hi(c)
-    reg_file.write_lo(d)
-    reg_file.update_pc()
 
+    multiply = a * b
+    c = bin_digits(multiply, 64)
+    d = int(c[0:31], 2)
+    e = int(c[32:64], 2)
+    reg_file.write_hi(d)
+    reg_file.write_lo(e)
+    reg_file.update_pc()
 
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -896,6 +911,7 @@ def j(instr):
 
 # special instruction
 def spec(instr):
+    print("{0} ${1}, ${2}, ${3}\n".format(instr.name, instr.rd, instr.rs, instr.rt))
     # mult then xor
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
@@ -905,13 +921,8 @@ def spec(instr):
         c = bin_digits(multiply, 64)
         d = int(c[0:31], 2)
         e = int(c[32:64], 2)
-        reg_file.write_hi(d)
-        reg_file.write_lo(e)
 
-        c = reg_file.read(33)  # read hi
-        d = reg_file.read(32)  # read lo
-
-        a = c ^ d
+        a = d ^ e
 
     mask = 4294967295
     shifter_left = a << 16
@@ -954,14 +965,17 @@ r_type = {
     '101010': (slt, 'slt'),
     '111111': (spec, 'spec')  # special instruction
 }
+i_type_special = {
+    '001101': (ori, 'ori')
+
+}
 i_type = {
     # i-types:
     '001000': (addi, 'addi'),
     '001100': (andi, 'andi'),
-    '001101': (ori, 'ori'),
+    '001111': (lui, 'lui'),
     '100011': (lw, 'lw'),
     '001110': (xori, 'xori'),
-    '001111': (lui, 'lui'),
     '101000': (sb, 'sb'),
     '101011': (sw, 'sw'),
     '100000': (lb, 'lb'),
@@ -1006,6 +1020,7 @@ def main():
     rcount = 0
     icount = 0
     jcount = 0
+    spcount = 0
     mem_start = 8192  # '0x2000'
 
     for i in range(1025):  # this could work for each instruction instr_list: -> loop 1025
@@ -1096,6 +1111,9 @@ def main():
                 elif sim_instr[pc].type == 'i_type':
                     instr_func = i_type[sim_instr[pc].func][0]
                     icount += 1
+                elif sim_instr[pc].type == 'i_type_special':
+                    instr_func = i_type_special[sim_instr[pc].func][0]
+                    spcount += 1
                 else:
                     instr_func = j_type[sim_instr[pc].func][0]
                     jcount += 1
@@ -1113,7 +1131,7 @@ def main():
         # time.sleep(1)
 
         reg_file.print_regs()
-        time.sleep(1)
+        time.sleep(0.1)
 
 # take as string..
     # look at last 3 bits / 4 know index number
