@@ -300,7 +300,9 @@ def asm_to_bin(asm, label_name, label_index):
             else:  # Jumping to label
                 for i in range(len(label_name)):
                     if label_name[i] == line[2]:
-                        jump_dist = -1 * (line_pos + 1 + i - label_index[i])
+                        jump_dist = label_index[i] - (line_pos + 1)
+                        #if jump_dist < 0:
+                        #    jump_dist
                         jump_dist = bin_digits(jump_dist, 16)
                         f.write(str('000100') + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
             line_pos += 1
@@ -318,7 +320,9 @@ def asm_to_bin(asm, label_name, label_index):
             else:  # branching to label
                 for i in range(len(label_name)):
                     if label_name[i] == line[2]:
-                        jump_dist = -1 * (line_pos + 1 + i - label_index[i])
+                        jump_dist = label_index[i] - (line_pos + 1)
+                        #if jump_dist < 0:
+                            #jump_dist = jump_dist*-1
                         jump_dist = bin_digits(jump_dist, 16)
 
             out = str('000101' + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
@@ -930,11 +934,11 @@ def bne(instr):
 # jump
 def j(instr):
     print(instr.name + str(" ") + str(instr.imm))
-    #oldPC = reg_file.read_pc()
-   # newPC = oldPC &0xf0000000 |instr.imm << 2
-    #print(oldPC, newPC )
-    reg_file.write(34, instr.imm )
-    #exit(0)
+    # oldPC = reg_file.read_pc()
+    # newPC = oldPC &0xf0000000 |instr.imm << 2
+    # print(oldPC, newPC )
+    reg_file.write(34, 4 * instr.imm)
+    # exit(0)
 
 
 # special instruction
@@ -1146,8 +1150,8 @@ def main():
         instr_func(sim_instr[pc])
         DIC += 1
 
-        reg_file.print_regs()
-        printallmem()
+        #reg_file.print_regs()
+        #printallmem()
         # tmp = input("next instr?")
         # time.sleep(1)
 
@@ -1170,6 +1174,7 @@ def main():
     #     row.print_mem()
 
     reg_file.print_regs()
+    printallmem()
     tmp = icount + jcount + rcount
     print('DIC', DIC,"sum",tmp)
     
