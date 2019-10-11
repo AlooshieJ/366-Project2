@@ -150,7 +150,7 @@ def asm_to_bin(asm, label_name, label_index):
                 imm = bin_digits(x, 16)
             else:
                 imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
-            print("binary conversion: ",imm, tmp, x)
+            print("binary conversion: ", imm, tmp)
             rs = format(int(line[1]), '05b')
             rt = format(int(line[0]), '05b')
             f.write(str('001101') + str(rs) + str(rt) + str(imm) + '\n')
@@ -301,8 +301,6 @@ def asm_to_bin(asm, label_name, label_index):
                 for i in range(len(label_name)):
                     if label_name[i] == line[2]:
                         jump_dist = label_index[i] - (line_pos + 1)
-                        #if jump_dist < 0:
-                        #    jump_dist
                         jump_dist = bin_digits(jump_dist, 16)
                         f.write(str('000100') + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
             line_pos += 1
@@ -315,14 +313,12 @@ def asm_to_bin(asm, label_name, label_index):
 
             if line[2].isdigit():  # First,test to see if it's a label or a integer
                 f.write(str('000101') + str(rs) + str(rt) + str(format(int(line[2]), '016b')) + '\n')
-                jump_dist = imm
+                jump_dist = format(int(line[2]), '016b')
 
             else:  # branching to label
                 for i in range(len(label_name)):
                     if label_name[i] == line[2]:
                         jump_dist = label_index[i] - (line_pos + 1)
-                        #if jump_dist < 0:
-                            #jump_dist = jump_dist*-1
                         jump_dist = bin_digits(jump_dist, 16)
 
             out = str('000101' + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
@@ -469,7 +465,7 @@ class mem:
         self.b3 = b3  # addr + 3
         self.data = str(self.b3) + str(self.b2) + str(self.b1) + str(self.b0)
 
-    def print_mem(self ):  # b3 = msb , b0 = lsb
+    def print_mem(self):  # b3 = msb , b0 = lsb
         print(" ", hex(self.addr), end=":  ")
         print("{0:02x}".format(self.b3), end="")
         print("{0:02x}".format(self.b2), end="")
@@ -496,7 +492,6 @@ class mem:
 
         # def loadMem(self,addr):
         # return self.data
-
 
 
 # print(self.addr,self.b0 + self.b1 + self.b2 + self.b3, end=" ")
@@ -636,10 +631,11 @@ def multu(instr):
     multiply = a * b
     c = bin_digits(multiply, 64)
     d = int(c[0:32], 2)
-    e = int(c[32:64],2)
+    e = int(c[32:64], 2)
     reg_file.write_hi(d)
     reg_file.write_lo(e)
     reg_file.update_pc()
+
 
 def AND(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
@@ -763,8 +759,8 @@ def lw(instr):
     # print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
 
-    tmpRS = reg_file.read(instr.rs)
-    index = abs( tmpRS + instr.imm - int('0x2000', 16) )
+    rs = reg_file.read(instr.rs)
+    index = abs(rs + instr.imm - int('0x2000', 16))
     address = index // 4
     offset = index % 4
     print("loadW index: ", index, "addr: ", address, "offset: ", offset)
@@ -773,25 +769,22 @@ def lw(instr):
         print("error")
         exit(0)
     else:
-       b0 = hex(memory[address].b0)[2:]
-       b1 = hex(memory[address].b1)[2:]
-       b2 = hex(memory[address].b2)[2:]
-       b3 = hex(memory[address].b3)[2:]
-       if b0 == '0':
-           b0 = '00'
-       if b1 == '0':
+        b0 = hex(memory[address].b0)[2:]
+        b1 = hex(memory[address].b1)[2:]
+        b2 = hex(memory[address].b2)[2:]
+        b3 = hex(memory[address].b3)[2:]
+        if b0 == '0':
+            b0 = '00'
+        if b1 == '0':
             b1 = '00'
-       if b2 == '0':
+        if b2 == '0':
             b2 = '00'
-       if b3 == '0':
+        if b3 == '0':
             b3 = '00'
-       tmp = b3+b2+b1+b0
-       tmp = int(tmp,16)
-       print(b3,b2,b1,b0,tmp )
-       reg_file.write(instr.rt,tmp)
-
-
-
+        tmp = b3+b2+b1+b0
+        tmp = int(tmp, 16)
+        print(b3, b2, b1, b0, tmp)
+        reg_file.write(instr.rt, tmp)
     reg_file.update_pc()
 
 
@@ -805,7 +798,7 @@ def sw(instr):
     index = abs(reg_rs + instr.imm - int('0x2000', 16))
 
     address = index // 4
-    remainder = index % 4
+    # remainder = index % 4
     print("store index: ", index, "addr: ", address, "value: ", end="")
 
     value = bin_digits(value, 32)
@@ -825,9 +818,9 @@ def sw(instr):
 def lb(instr):  # lb rt, offset(rs)
     # print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
-
-    tmpRS = reg_file.read(instr.rs)
-    index = abs( tmpRS + instr.imm - int('0x2000', 16) )
+    value = 0
+    rs = reg_file.read(instr.rs)
+    index = abs(rs + instr.imm - int('0x2000', 16))
     address = index // 4
     offset = index % 4
     print("load index: ", index, "addr: ", address, "offset: ", offset)
@@ -1040,9 +1033,11 @@ def saveJumpLabel(asm, label_index, label_name):
         #     asm[line_count] = line[line.index('#')+1 :]
 
         line_count += 1
+
+
 def printallmem():
     count = 0
-    #print('Address |   (+0)    |   (+4)    |   (+8)   |   (+c)    |   (+10)    |   (+14)   |   (+18)    |   (+1c)  ')
+    # print('Address |   (+0)    |   (+4)    |   (+8)   |   (+c)    |   (+10)    |   (+14)   |   (+18)    |   (+1c)  ')
     print('Memory')
     for row in memory[:100]:
         if row.addr % (4 * 8) == 0:
@@ -1052,19 +1047,20 @@ def printallmem():
 
     print(" ")
 
+
 def main():
     # input asm file
-    readFile = input("select file: (testcase.asm), (hash-default.asm), (hash-plus.asm)" )
-    print(readFile)
+    read_file = input("select file: (testcase.asm), (hash-default.asm), (hash-plus.asm)")
+    print(read_file)
 
-    h = open(readFile, 'r')
+    h = open(read_file, 'r')
     bin_file = open("toBin.txt", 'w+')  # binary file
     asm = h.readlines()
     instr_list = []  # what we read from file
     label_name = []
     label_index = []
-    line_count = 0
-    DIC = 1
+    # line_count = 0
+    dic = 1
     rcount = 0
     icount = 0
     jcount = 0
@@ -1096,7 +1092,6 @@ def main():
 
             instr_list.append(line)
 
-
     # writes binary of assembly code to file
     asm_to_bin(instr_list, label_name, label_index)
     # print("label 1{0} label2 {1}".format(instr_list[2], instr_list[12]) )
@@ -1111,7 +1106,7 @@ def main():
     for binary in bin_file.readlines():
         binary = binary.replace('\n', '')
         to_hex = hex(int(binary, 2))
-        #print(to_hex)
+        # print(to_hex)
         x = Instruction(to_hex)
         sim_instr.append(x)
         sim_instr.append('')
@@ -1119,7 +1114,6 @@ def main():
         sim_instr.append('')
 
         line_count += 4
-
 
     # """
     # THIS is the loop for the simulator. only tested infinite loop w/ jump instruction
@@ -1152,14 +1146,13 @@ def main():
                 break
 
         instr_func(sim_instr[pc])
-        DIC += 1
-
+        dic += 1
 
     print('\n\nREGS:')
     reg_file.print_regs()
     printallmem()
     tmp = icount + jcount + rcount
-    print('   DIC', DIC)
+    print('   dic', dic)
     
 
 if __name__ == "__main__":
