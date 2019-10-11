@@ -300,7 +300,9 @@ def asm_to_bin(asm, label_name, label_index):
             else:  # Jumping to label
                 for i in range(len(label_name)):
                     if label_name[i] == line[2]:
-                        jump_dist = -1 * (line_pos + 1 + i - label_index[i])
+                        jump_dist = label_index[i] - (line_pos + 1)
+                        #if jump_dist < 0:
+                        #    jump_dist
                         jump_dist = bin_digits(jump_dist, 16)
                         f.write(str('000100') + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
             line_pos += 1
@@ -318,7 +320,9 @@ def asm_to_bin(asm, label_name, label_index):
             else:  # branching to label
                 for i in range(len(label_name)):
                     if label_name[i] == line[2]:
-                        jump_dist = -1 * (line_pos + 1 + i - label_index[i])
+                        jump_dist = label_index[i] - (line_pos + 1)
+                        #if jump_dist < 0:
+                            #jump_dist = jump_dist*-1
                         jump_dist = bin_digits(jump_dist, 16)
 
             out = str('000101' + str(rs) + str(rt) + str(jump_dist) + str(' ') + '\n')
@@ -440,10 +444,13 @@ class registerFile:
 
     def print_regs(self):
         for i in range(35):
-            if i % 10 == 0:
+            if i % 5 == 0:
                 print('\n', end='')
             hex_tmp = format(self.read(i), '08x')
-            print("{0} = 0x{1}".format(i, hex_tmp), end=" ")
+            if i < 10:
+                print("0{0} = 0x{1}".format(i, hex_tmp), end=" ")
+            else:
+                print("{0} = 0x{1}".format(i, hex_tmp), end=" ")
         print('\n')
 
 
@@ -930,11 +937,11 @@ def bne(instr):
 # jump
 def j(instr):
     print(instr.name + str(" ") + str(instr.imm))
-    #oldPC = reg_file.read_pc()
-   # newPC = oldPC &0xf0000000 |instr.imm << 2
-    #print(oldPC, newPC )
-    reg_file.write(34, instr.imm )
-    #exit(0)
+    # oldPC = reg_file.read_pc()
+    # newPC = oldPC &0xf0000000 |instr.imm << 2
+    # print(oldPC, newPC )
+    reg_file.write(34, 4 * instr.imm)
+    # exit(0)
 
 
 # special instruction
@@ -1036,10 +1043,8 @@ def saveJumpLabel(asm, label_index, label_name):
 def printallmem():
     count = 0
     print('Address | (+0)  | (+4)  | (+8) | (+c)  | (+10)  | (+14) | (+18)  | (+1c)')
-    for row in memory[:150]:
-        # print("address:  ",row.addr)
-        # tmp = row.addr - int(0x2000,16)
-        if row.addr % (4 * 8) == 0:
+    for row in memory[:100]:
+        if row.addr % (4 * 4) == 0:
             print('\n', end=" ")
         # new way to write to memory. kinda slow because array O(N)
         # row.writeMem(row.addr, l + 1)
@@ -1047,7 +1052,6 @@ def printallmem():
         row.print_mem()
 
     print(" ")
-
 
 def main():
     # input asm file
@@ -1058,7 +1062,7 @@ def main():
     label_name = []
     label_index = []
     line_count = 0
-    DIC = 0
+    DIC = 1
     rcount = 0
     icount = 0
     jcount = 0
@@ -1148,8 +1152,8 @@ def main():
         instr_func(sim_instr[pc])
         DIC += 1
 
-        reg_file.print_regs()
-        printallmem()
+        #reg_file.print_regs()
+        #printallmem()
         # tmp = input("next instr?")
         # time.sleep(1)
 
@@ -1172,8 +1176,9 @@ def main():
     #     row.print_mem()
 
     reg_file.print_regs()
+    printallmem()
     tmp = icount + jcount + rcount
-    print('DIC', DIC,"sum",tmp)
+    print('   DIC', DIC)
     
 
 if __name__ == "__main__":
