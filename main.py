@@ -762,6 +762,25 @@ def lui(instr):
 def lw(instr):
     # print(instr.binary_S + '\n')
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
+
+    tmpRS = reg_file.read(instr.rs)
+    index = abs( tmpRS + instr.imm - int('0x2000', 16) )
+    address = index // 4
+    offset = index % 4
+    print("loadW index: ", index, "addr: ", address, "offset: ", offset)
+
+    if index % 4 != 0:
+        print("error")
+        exit(0)
+    else:
+       b0 = memory[address].b0
+       b1 = memory[address].b1
+       b2 = memory[address].b2
+       b3 = memory[address].b3
+       value = str(b3,b2,b1,b0)
+       print(value)
+
+
     reg_file.update_pc()
 
 
