@@ -1,19 +1,34 @@
 # lui, ori, addi, multu, mfhi, mflo, xor, sll, srl, sb, sw, lb, sltu, beq, bne, and
-# think about register class.... that would
+"""
+Mars-MIPS simulator program. This programs simualtes the Mars program we have been using in class to build assembly files.
+It does so by:
+ - first reading a .asm file, saving the labels and their location in the original assembly file.
+ - then converts each instruction to machine code and writes the binary to a new file (toBin.txt).
+The program is allowed to read and write this file, after it creates all the machine code and proceedes to simulate the
+machine code.
+
+Instructions supported:
+i-type: addiu xori addi andi ori sb sw lb beq bne
+r-type: add and or mulu mult xor sll srl sltu slt mflo mfhi
+
+special instructiion: spec
+"""
 import time
-import os
 
 
-# added for - registers
+
+# these are functions we created as we needed them, they were used all throughout the code.
+
 def twos_comp(number):
     return 4294967296 + int(number)
 
-
+# converts a number to binary , given specific bits desired. mostly used for asm-> machine code
+# also helped make mult/mulu easier to code when saving to lo/ hi registers
 def bin_digits(n, bits):
     s = bin(n & int("1"*bits, 2))[2:]
     return ("{0:0>%s}" % bits).format(s)
 
-
+# added function to find the base of an instructions imm value.
 def check_base(read_in):
     to_s = str(read_in)
     if to_s[0:2] == '0x':
@@ -21,7 +36,8 @@ def check_base(read_in):
     else:
         return 2
 
-
+# Thanks to Trung Le's template that we used in HW 4.
+# added a few more instructions that where not included in HW, but needed for hash program.
 def asm_to_bin(asm, label_name, label_index):
     line_pos = 0
     f = open("toBin.txt", "w+")
@@ -34,7 +50,7 @@ def asm_to_bin(asm, label_name, label_index):
         line = line.replace("%", ",")
         line = line.replace("zero", "0")  # assembly can also use both $zero and $0
 
-        if line[0:5] == "addiu":  # ADDIU
+        if line[0:5] == "addiu":  # addiu rt,rs,imm
             line = line.replace("addiu", "")
             line = line.split(",")
             tmp = str(line[2])
@@ -75,7 +91,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(bin_out)
             line_pos += 1
 
-        elif line[0:4] == "addi":  # ADDI
+        elif line[0:4] == "addi":  # addi rt,rs,imm
             line = line.replace("addi", "")
             line = line.split(",")
 
@@ -92,7 +108,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('001000') + str(rs) + str(rt) + str(imm) + '\n')
             line_pos += 1
 
-        elif line[0:3] == "add":  # ADD
+        elif line[0:3] == "add":  # add rd, rs , rt
             line = line.replace("add", "")
             line = line.split(",")
             rd = format(int(line[0]), '05b')
@@ -101,7 +117,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100000') + '\n')
             line_pos += 1
 
-        elif line[0:4] == "andi":  # ANDI
+        elif line[0:4] == "andi":  # andi rt,rs,imm
             line = line.replace("andi", "")
             line = line.split(",")
 
@@ -118,7 +134,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('001100') + str(rs) + str(rt) + str(imm) + '\n')
             line_pos += 1
 
-        elif line[0:3] == "and":  # bitwise and | and $rd,$rs,$rt
+        elif line[0:3] == "and":  # bitwise and , and $rd,$rs,$rt
             line = line.replace("and", "")
             line = line.split(",")
             rd = format(int(line[0]), '05b')
@@ -128,12 +144,6 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(bin_out)
             line_pos += 1
 
-        elif line[0:4] == "mflo":  # lo
-            line = line.replace("mflo", "")
-            rd = format(int(line), '05b')
-            f.write(str('0000000000000000') + str(rd) + str('00000010010') + '\n')
-            line_pos += 1
-
         elif line[0:4] == "mflo":  # mflo $rd
             line = line.replace("mflo", "")
             rd = format(int(line), '05b')
@@ -141,7 +151,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(bin_out)
             line_pos += 1
 
-        elif line[0:3] == "ori":  # ori
+        elif line[0:3] == "ori":  # ori rt,rs, imm
             line = line.replace("ori", "")
             line = line.split(",")
             tmp = str(line[2])
@@ -165,14 +175,14 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('000000') + str(rs) + str(rt) + str(rd) + '00000100101' + '\n')
             line_pos += 1
 
-        elif line[0:4] == "mfhi":  # MFHI
+        elif line[0:4] == "mfhi":  # mfhi rd
             line = line.replace("mfhi", "")
             line = line.split(",")
             rd = format(int(line[0]), '05b')
             f.write(str('0000000000000000') + str(rd) + str('00000010000') + '\n')
             line_pos += 1
 
-        elif line[0:5] == "multu":  # MULTU
+        elif line[0:5] == "multu":  # multu rs,rt
             line = line.replace("multu", "")
             line = line.split(",")
             rs = format(int(line[0]), '05b')
@@ -180,7 +190,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('000000') + str(rs) + str(rt) + str('0000000000011001') + '\n')
             line_pos += 1
 
-        elif line[0:4] == "mult":  # MULT
+        elif line[0:4] == "mult":  # mult rs, rt
             line = line.replace("mult", "")
             line = line.split(",")
             rs = format(int(line[0]), '05b')
@@ -197,7 +207,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('00000000000') + str(rt) + str(rd) + str(rh) + str('000010') + '\n')
             line_pos += 1
 
-        elif line[0:3] == "sll":  # SLL
+        elif line[0:3] == "sll":  # sll rd,rt,h
             line = line.replace("sll", "")
             line = line.split(",")
             rd = format(int(line[0]), '05b')
@@ -206,7 +216,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('00000000000') + str(rt) + str(rd) + str(rh) + str('000000') + '\n')
             line_pos += 1
 
-        elif line[0:3] == "lui":  # LUI
+        elif line[0:3] == "lui":  # Lui rt,imm
             line = line.replace("lui", "")
             line = line.split(",")
             rt = format(int(line[0]), '05b')
@@ -220,7 +230,7 @@ def asm_to_bin(asm, label_name, label_index):
             f.write(str('00111100000') + str(rt) + str(imm) + '\n')
             line_pos += 1
 
-        elif line[0:2] == "lb":  # lb
+        elif line[0:2] == "lb":  # lb rt,rs,imm
             line = line.replace("lb", "")
             line = line.replace(")", "")
             line = line.replace("(", ",")
@@ -373,23 +383,23 @@ def asm_to_bin(asm, label_name, label_index):
 
     print(line_pos)
 
-
+# sign extend function uses bin digits function created above.
+# takes a 32 bit binary number, ands with mask 0xffffff00
+# used for lb
 def sign_extend(value, bits):
     mask = 0xffffff00
     bin_digits(value, 32)
     value = mask ^ value
-    print("{:08x} ? {:08x}, value: {:08x} ".format(mask, bits, value))
-    #
-    # sign_bit =  1 << (bits - 1)
-    # return (value & (sign_bit - 1)) - (value & sign_bit)
+    #print("{:08x} ? {:08x}, value: {:08x} ".format(mask, bits, value))
+
     return value
 
 
-# lets create a list of indexes we do not want for the registers
+# lets create a list of indexes  for the registers
 # ex:
 # pc  = [34],
 # lo = [32], hi ...= data[33]
-# [1] -[30] available
+# [1] -[31] available
 # [0] = 0 always if they index 0 , it returns 0 :))))) so wise
 class registerFile:
     def __init__(self):
@@ -452,8 +462,7 @@ class registerFile:
 
 memory = []  # mem(mem_start,0,0,0,0)
 reg_file = registerFile()
-
-
+# created a class for memory for an easy way to access each byte of information
 # msb = b3 lsb = b0
 class mem:
     def __init__(self, address, b3, b2, b1, b0):
@@ -558,8 +567,9 @@ class Instruction:
         print(self.binary_S)
 
 
-# functions(instr) these should do the actual instructions
-# currently just outputting to check if they work.
+# functions(instr) these should do the actual instructions on the registers
+# each function increments PC accordingly
+#
 # r- types
 def add(instr):
     # addi rd,rs,rt
@@ -619,12 +629,6 @@ def xor(instr):
 
 def multu(instr):
     print("{0} ${1}, ${2}".format(instr.name, instr.rs, instr.rt))
-    # a = reg_file.read(instr.rs)
-    # b = reg_file.read(instr.rt)
-    # c, d = divmod((a * b), (2 ^ 32))
-    # reg_file.write_hi(c)
-    # reg_file.write_lo(d)
-    # reg_file.update_pc()
     a = reg_file.read(instr.rs)
     b = reg_file.read(instr.rt)
 
@@ -694,9 +698,6 @@ def srl(instr):
         # chop off the msb when gets past
 
 
-# 64 bits... adn w/ 00000ffff for lowest 32 bits shift right 32 bits
-# then xor lo right shift should add zeros
-
 def sltu(instr):
     print("{0} ${1}, ${2}, ${3}".format(instr.name, instr.rd, instr.rs, instr.rt))
 
@@ -733,7 +734,7 @@ def ori(instr):
     a = reg_file.read(instr.rs)
     b = twos_comp(instr.imm)
     c = a | b
-    print(hex(a), int(b), hex(c))
+    # print(hex(a), int(b), hex(c)) debug
 
     reg_file.write(instr.rt, a | instr.imm)
     reg_file.update_pc()
@@ -750,7 +751,7 @@ def lui(instr):
     print("{0} ${1}, {2}".format(instr.name, instr.rt, instr.imm))
     a = instr.imm
     shift = a << 16
-    print("a", a)
+    # print("a", a)
     reg_file.write(instr.rt, shift)
     reg_file.update_pc()
 
@@ -763,7 +764,7 @@ def lw(instr):
     index = abs(rs + instr.imm - int('0x2000', 16))
     address = index // 4
     offset = index % 4
-    print("loadW index: ", index, "addr: ", address, "offset: ", offset)
+    # print("loadW index: ", index, "addr: ", address, "offset: ", offset)
 
     if index % 4 != 0:
         print("error")
@@ -783,7 +784,7 @@ def lw(instr):
             b3 = '00'
         tmp = b3+b2+b1+b0
         tmp = int(tmp, 16)
-        print(b3, b2, b1, b0, tmp)
+        # print(b3, b2, b1, b0, tmp)
         reg_file.write(instr.rt, tmp)
     reg_file.update_pc()
 
@@ -802,9 +803,7 @@ def sw(instr):
     print("store index: ", index, "addr: ", address, "value: ", end="")
 
     value = bin_digits(value, 32)
-    print(value)
     value = int(value, 2)
-    print(value)
 
     if index % 4 != 0:
         print("error")
@@ -812,7 +811,6 @@ def sw(instr):
     else:
         memory[address].writeWordMem(value)
         reg_file.update_pc()
-        # memory[address].print_mem()
 
 
 def lb(instr):  # lb rt, offset(rs)
@@ -823,26 +821,22 @@ def lb(instr):  # lb rt, offset(rs)
     index = abs(rs + instr.imm - int('0x2000', 16))
     address = index // 4
     offset = index % 4
-    print("load index: ", index, "addr: ", address, "offset: ", offset)
+    # print("load index: ", index, "addr: ", address, "offset: ", offset)
 
     if offset == 0:
-        # print("addr + 0")
         value = memory[address].b0
 
     elif offset == 1:
-        # print("addr + 1")
         value = memory[address].b1
 
     elif offset == 2:
-        # print("addr + 2")
         value = memory[address].b2
 
     elif offset == 3:
-        # print("addr + 3")
         value = memory[address].b3
+
     reg_file.update_pc()
 
-    # print(sign_extend(value,32))
     if value < 0:
         reg_file.write_sext(instr.rt, value)
     else:
@@ -854,31 +848,27 @@ def sb(instr):  # b0 = msb b3 = lsb
     print("{0} ${1}, {3}(${2})".format(instr.name, instr.rt, instr.rs, instr.imm))
     tmprs = reg_file.read(instr.rs)
     index = abs(tmprs + instr.imm - int('0x2000', 16))
-    print("|{} + {} - {} |".format(tmprs, instr.imm, int('0x2000', 16)))
+    # print("|{} + {} - {} |".format(tmprs, instr.imm, int('0x2000', 16)))
     address = index // 4
     offset = index % 4
 
     value = reg_file.read(instr.rt)
-    print('value to store:', value)
+    # print('value to store:', value)
     value = bin_digits(value, 32)
-    print(value[:2], value[2:4], value[4:6], value[6:8])
+    # print(value[:2], value[2:4], value[4:6], value[6:8])
     value = int(value[-8:], 2)
-    print("index: ", index, "addr: ", address, "offset: ", offset, "value:", value)
+    # print("index: ", index, "addr: ", address, "offset: ", offset, "value:", value)
 
     if offset == 0:
-        # print("addr + 0")
         memory[address].b0 = value
 
     elif offset == 1:
-        # print("addr + 1")
         memory[address].b1 = value
 
     elif offset == 2:
-        # print("addr + 2")
         memory[address].b2 = value
 
     elif offset == 3:
-        # print("addr + 3")
         memory[address].b3 = value
 
     memory[address].print_mem()
@@ -893,16 +883,13 @@ def beq(instr):
     tmp = instr.imm * 4
     dist = tmp + reg_file.read_pc() + 4
 
-    print('pc=', reg_file.read_pc(), "tmp", tmp, "dist:", dist)
-    print('a=', a, "b=", b, "imm= ", instr.imm)
+    # print('pc=', reg_file.read_pc(), "tmp", tmp, "dist:", dist)
+    # print('a=', a, "b=", b, "imm= ", instr.imm)
 
     if a == b:
         reg_file.write(34, dist)
     else:
         reg_file.update_pc()
-    # pass
-    #     tmp + 4
-    #     reg_file.write(34, tmp)
 
 
 def bne(instr):
@@ -914,27 +901,18 @@ def bne(instr):
     tmp = instr.imm * 4
     dist = tmp + reg_file.read_pc() + 4
 
-    print('pc=', reg_file.read_pc(), "tmp", tmp, "dist:", dist)
-    print('a=', a, "b=", b)
+    # print('pc=', reg_file.read_pc(), "tmp", tmp, "dist:", dist)
+    # print('a=', a, "b=", b)
     if a != b:
         reg_file.write(34, dist)
-    # elif dist == 0:
-    #     reg_file.update_pc()
     else:
         reg_file.update_pc()
-        # pass
-    #     tmp += 4
-    #     reg_filereg_file.update_pc()
 
 
 # jump
 def j(instr):
     print(instr.name + str(" ") + str(instr.imm))
-    # oldPC = reg_file.read_pc()
-    # newPC = oldPC &0xf0000000 |instr.imm << 2
-    # print(oldPC, newPC )
     reg_file.write(34, 4 * instr.imm)
-    # exit(0)
 
 
 # special instruction
@@ -972,11 +950,11 @@ def spec(instr):
     reg_file.update_pc()
 
 # python directory, like array, but uses "key" to instead of indices.
-# first couple lines ... add more
 # function table in a way..
+
+
 #               key,    [0],  [1]
-
-
+# r type instructions
 r_type = {
     # r - types:
     '100000': (add, 'add'),
@@ -991,12 +969,14 @@ r_type = {
     '101011': (sltu, 'sltu'),
     '100100': (AND, 'and'),
     '101010': (slt, 'slt'),
-    '111111': (spec, 'spec')  # special instruction
+    '111111': (spec, 'spec')  # special instruction added for MIPS-PLUS
 }
+# moved ori into its own register b/c it caused some problems
 i_type_special = {
     '001101': (ori, 'ori')
 
 }
+# supported i type
 i_type = {
     # i-types:
     '001000': (addi, 'addi'),
@@ -1011,6 +991,7 @@ i_type = {
     '000101': (bne, 'bne'),
     '001001': (addiu, 'addiu')
 }
+# jump :)
 j_type = {
     '000010': (j, 'j')}
 
@@ -1028,13 +1009,14 @@ def saveJumpLabel(asm, label_index, label_name):
             label_name.append(line[0:line.index(':')])  # save label name from each read line into array
             label_index.append(line_count)  # save label's index
             del asm[line_count]
-            # asm[line_count] = line[line.index(':') +1 :]
+        #     asm[line_count] = line[line.index(':') +1 :]
         # elif line.find("#") != -1:
         #     asm[line_count] = line[line.index('#')+1 :]
 
         line_count += 1
 
 
+# created function that displays the memory each index has an address so we show that too
 def printallmem():
     count = 0
     # print('Address |   (+0)    |   (+4)    |   (+8)   |   (+c)    |   (+10)    |   (+14)   |   (+18)    |   (+1c)  ')
@@ -1067,7 +1049,8 @@ def main():
     spcount = 0
     mem_start = 8192  # '0x2000'
 
-    for i in range(1025):  # this could work for each instruction instr_list: -> loop 1025
+# note that we created memory from 0x2000- 0x3000 but none of the programs used that much of it
+    for i in range(1025):
         addr = mem_start
         memory.append(mem(addr, 0, 0, 0, 0))
         mem_start += 4  # increment addr by 4, each will have access to every bit.
@@ -1115,10 +1098,7 @@ def main():
 
         line_count += 4
 
-    # """
-    # THIS is the loop for the simulator. only tested infinite loop w/ jump instruction
-    # pc increments correctly
-    # print("pc= {0} reg 3 = {1}".format(pc, reg_file.read(3), '08x'))
+
     pc = 0
     while pc <= line_count * 4:
         pc = reg_file.read_pc()
@@ -1152,7 +1132,7 @@ def main():
     reg_file.print_regs()
     printallmem()
     tmp = icount + jcount + rcount
-    print('   dic', dic)
+    print('   dic', dic,)
     
 
 if __name__ == "__main__":
